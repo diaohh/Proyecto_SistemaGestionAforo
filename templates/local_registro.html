@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+		<link rel="stylesheet" href="{{url_for('static',filename='css/estilos.css')}}">
+		<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+		<title>Sistema de gestion de accesos y aforo</title>
+
+		<script language="JavaScript">
+		function actualizar_telefonos(selection){
+			
+			if(selection=='1'){
+				document.formulario_registro.telefono2.disabled = true;
+				document.formulario_registro.telefono3.disabled = true;
+				document.getElementById("telefono2").value = ''; 
+				document.getElementById("telefono3").value = ''; 
+			}
+			else if(selection=='2'){
+				document.formulario_registro.telefono2.disabled = false;
+				document.formulario_registro.telefono3.disabled = true;
+				document.getElementById("telefono3").value = ''; 
+			}
+			else if(selection=='3'){
+				document.formulario_registro.telefono2.disabled = false;
+				document.formulario_registro.telefono3.disabled = false;
+			}
+		}
+		</script>
+	</head>
+	<body style="background-image: url('{{url_for('static',filename='imgs/wall_menu.jpg')}}');" onload="actualizar_telefonos(1); actualizarMuns();">
+		<header>
+			<div class="row">
+				<div class="col-md-1"></div>
+				<div class="col-md-7">
+					<img src="{{url_for('static',filename='imgs/logo3.png')}}" class="logo">
+				</div>
+				<div class="col-md-4">
+					<nav>
+						<a href="/" class="opciones">Inicio</a>
+						<a href="/objetivo" class="opciones">Objetivo</a>
+						<a href="/contactanos" class="opciones">Contactanos</a>
+					</nav>
+				</div>
+			</div>
+		</header>
+		<h1 class="principal">Registro de local</h1>
+		<h5 class="sub-principal">Todos los campos son obligatorios*</h5>
+		
+		<form name=formulario_registro action="/registro-local/" method="POST">
+		<div class="row">
+			<div class="col-md-3"></div>
+			<div class="col-md-3">
+				<label for="tipo_id">Tipo de documento</label>
+				<select id="tipo_id" name="tipo_id">
+					<option value="NIT">NIT</option>
+					<option value="RUT">RUT</option>
+				</select><br>
+				<label id="label_num_doc"></label>
+				<input type="text" id="num_id" name="num_id" placeholder="Numero de identificacion" pattern="[0-9]{9,11}" required><br><br>
+				<input type="text" id="nombre" name="nombre" placeholder="Nombre del local" required><br><br>
+
+				<label for="departamento">Departamento de ubicacion</label>
+				<select id="departamento" name="departamento">
+					{% for departamento in departamentos %}
+						<option value="{{departamento[0]}}">{{departamento[0]}}</option>
+					{% endfor %}
+				</select><br><br>
+
+				<label for="municipio">Municipio de uvicacion</label>
+				<select id="municipio" name="municipio">
+				</select><br><br>
+
+				<label for="barrio">Barrio de ubicacion</label>
+				<select id="barrio" name="barrio">
+				</select><br><br>
+				<input type="email" id="correo" name="correo" placeholder="Correo de contacto" required><br><br>
+
+				<label for="categoria">Categoria del local</label>
+				<select id="categoria" name="categoria">
+					{% for categoria in categorias %}
+						<option value="{{categoria[0]}}">{{categoria[0]}}</option>
+					{% endfor %}
+				</select><br><br>
+
+			</div>
+			<div class="col-md-3">
+				<label>Telefonos de contacto</label>
+				<select id="telefonos" name="telefonos" onchange="actualizar_telefonos(value);" style="width: 50px">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+				</select><br><br>
+				<input type="tel" id="telefono1" name="telefono1" placeholder="Telefono de contacto #1" required><br><br>
+				<input type="tel" id="telefono2" name="telefono2" placeholder="Telefono de contacto #2"><br><br>
+				<input type="tel" id="telefono3" name="telefono3" placeholder="Telefono de contacto #3"><br>
+				
+				<label id="label_usuario"></label>
+				<input type="text" id="usuario" name="usuario" placeholder="Usuario para inicio de sesion" required><br><br>
+
+				<div class="row">
+				<div class="col-md-6">
+				<input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required><br><br>
+				<label id="contrasena2_l"></label>
+				<input type="password" id="contrasena2" name="contrasena2" placeholder="Confirmar contraseña" required><br><br>
+				</div>
+				<div class="col-md-6">
+					<label>La contraseña debe tener almenos</label><br><br>
+					<label>1 numero</label><label id="numero"></label><br>
+					<label>1 letra</label><label id="letra"></label><br>
+					<label>1 caracter especial (-_!=+?¿!¡)</label><label id="caracter"></label><br>
+					<label>10 caracteres (minimo)</label><label id="longitud"></label></div>
+				</div>
+
+				<button id="terminar" disabled="true">Completar registro</button><br><br>
+				<button type="button" onclick="window.location.href='/'">Cancelar</button><br><br>
+			</div>
+
+			<div class="col-md-2"></div>
+		</div>
+		</form>
+
+	<script language="JavaScript" src="{{url_for('static',filename='js/script_registros.js')}}"></script>
+	</body>
+</html>
