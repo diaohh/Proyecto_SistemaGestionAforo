@@ -1,9 +1,23 @@
+#Framework usado: Flask
 from flask import Flask, render_template, redirect, url_for, request, jsonify, flash, session
 from flask_bcrypt import Bcrypt
+
+#Analisis de imagenes con codigos QR
+from pyzbar.pyzbar import decode
+from PIL import Image
+
+#Manejo de tiempos
+from datetime import date,timedelta,datetime
+from time import time
+
+#Libreria para conexion con la base de datos
 import pymysql
 
+#aplicativo flask
 app = Flask(__name__)
+#Modulo para encriptacion de contraseñas
 bcrypt = Bcrypt(app)
+#Coneccion con la base de datos
 connection = pymysql.connect(
 		host='localhost', #ip
 		user='root',
@@ -14,11 +28,36 @@ connection = pymysql.connect(
 
 @app.route("/")
 def index():
+	"""
+	Pagina principal, si no se ha iniciado una sesion, se
+	muestra el menu principal de la pagina, de lo contrario
+	se muestran los distintos menus dependiendo del tipo de
+	cuenta en sesion
+
+	"""
 	if "tipo" in session:
+		cursor = connection.cursor()
+
 		if session["tipo"] == 1:
-			return render_template("usuario.html")
+			sql = "SELECT tipo_id_local,num_id_local,fechayhora FROM test.visita WHERE('{}' = tipo_id_persona AND {} = num_id_persona)".format(session['tipo_id'],session['num_id'])
+			cursor.execute(sql)
+			aux_visitas = cursor.fetchall()
+			visitas = list()
+			for v in aux_visitas:
+				sql = "SELECT nombre FROM test.comercio WHERE('{}' = tipo_id AND {} = num_id)".format(v[0],v[1])
+				cursor.execute(sql)
+				tmp = cursor.fetchone()
+				visitas.append((tmp[0],v[2]))
+
+			return render_template("usuario.html", visitas=visitas)
+		
 		if session["tipo"] == 2:
-			return render_template("local.html")
+			sql = "SELECT tipo_id_persona,num_id_persona,fechayhora,tapabocas,temperatura,ingreso FROM test.visita WHERE(tipo_id_local = '{}' AND num_id_local = {})".format(session['tipo_id'],session['num_id'])
+			cursor.execute(sql)
+			visitas = cursor.fetchall()
+			
+			return render_template("local.html",visitas=visitas)
+
 		if session["tipo"] == 3:
 			return render_template("entidad_sanitaria.html")
 		if session["tipo"] == 4:
@@ -29,16 +68,26 @@ def index():
 
 @app.route("/objetivo")
 def objetivo():
+	"""
+	Retorna pagina de objetivos
+	"""
 	return render_template("objetivo.html")
 
 
 @app.route("/contactanos")
 def contactanos():
+	"""
+	Retorna pagina con informacion de contacto
+	"""
 	return render_template("contactanos.html")
 
 
 @app.route("/inicio-sesion/",methods=["GET","POST"])
 def inicio_sesion():
+	"""
+	Retorna menu de inicio de sesion, y redirecciona
+	al momento de enviar el formulario diligenciado
+	"""
 	
 	cursor = connection.cursor()
 	
@@ -49,9 +98,9 @@ def inicio_sesion():
 		contrasena = request.form['contrasena']
 		tipo_cuenta = 0 # 1: Civil, 2: Comercio, 3: Entidad Sanitaria, 4: admin
 
-		sql1 = "SELECT usuario,contrasena,pendiente FROM test.civil WHERE('{}' = usuario)".format(usuario)
-		sql2 = "SELECT usuario,contrasena,pendiente FROM test.comercio WHERE('{}' = usuario)".format(usuario)
-		sql3 = "SELECT usuario,contrasena,pendiente FROM test.entidad_sanitaria WHERE('{}' = usuario)".format(usuario)
+		sql1 = "SELECT usuario,contrasena,pendiente,tipo_id,num_id FROM test.civil WHERE('{}' = usuario)".format(usuario)
+		sql2 = "SELECT usuario,contrasena,pendiente,tipo_id,num_id FROM test.comercio WHERE('{}' = usuario)".format(usuario)
+		sql3 = "SELECT usuario,contrasena,pendiente,tipo_id,num_id FROM test.entidad_sanitaria WHERE('{}' = usuario)".format(usuario)
 		sql4 = "SELECT usuario,contrasena FROM test.administrador WHERE('{}' = usuario)".format(usuario)
 		
 		cursor.execute(sql1)
@@ -65,6 +114,8 @@ def inicio_sesion():
 				else:
 					session['usuario'] = usuario
 					session['tipo'] = 1
+					session['tipo_id'] = user[0][3]
+					session['num_id'] = user[0][4]
 		
 		cursor.execute(sql2)
 		user = cursor.fetchall()
@@ -76,6 +127,8 @@ def inicio_sesion():
 				else:
 					session['usuario'] = usuario
 					session['tipo'] = 2
+					session['tipo_id'] = user[0][3]
+					session['num_id'] = user[0][4]
 		
 		cursor.execute(sql3)
 		user = cursor.fetchall()
@@ -87,6 +140,8 @@ def inicio_sesion():
 				else:
 					session['usuario'] = usuario
 					session['tipo'] = 3
+					session['tipo_id'] = user[0][3]
+					session['num_id'] = user[0][4]
 		
 		cursor.execute(sql4)
 		user = cursor.fetchall()
@@ -101,11 +156,20 @@ def inicio_sesion():
 
 @app.route("/cerrar-sesion/")
 def cerrar_sesion():
+	"""
+	Cierra la sesion en cuestion y redirecciona al menu
+	principal
+	"""
 	session.clear()
 	return redirect(url_for("index"))
 
 @app.route("/registro-usuario/",methods=["GET","POST"])
 def registro_usuario():
+	"""
+	Retorna formulario para registro de usuarios e
+	inscribe los usuarios en la base de datos como
+	pendientes de aceptacion.
+	"""
 	
 	cursor = connection.cursor()
 
@@ -145,6 +209,11 @@ def registro_usuario():
 
 @app.route("/registro-local/",methods=["GET","POST"])
 def registro_local():
+	"""
+	Retorna formulario para registro de locales e
+	inscribe los locales en la base de datos como
+	pendientes de aceptacion.
+	"""
 
 	cursor = connection.cursor()
 
@@ -189,6 +258,12 @@ def registro_local():
 
 @app.route("/registro-entidad-salud/",methods=["GET","POST"])
 def registro_entidad_salud():
+	"""
+	Retorna formulario para registro de entidades de
+	salud inscribe los entidades de salud en la base
+	de datos como pendientes de aceptacion.
+	"""
+
 	cursor = connection.cursor()
 
 	if request.method == 'GET':
@@ -226,6 +301,11 @@ def registro_entidad_salud():
 
 @app.route("/muns/<dep>")
 def obtener_municipios(dep):
+	"""
+	Recibe el nombre de un departamento y retorna
+	una pagina en formato Json con los municipios
+	correspondientes.
+	"""
 	cursor = connection.cursor()
 	sql = "SELECT nombre FROM test.municipio WHERE(departamento = '{}')".format(dep)
 	cursor.execute(sql)
@@ -237,6 +317,11 @@ def obtener_municipios(dep):
 
 @app.route("/barrios/<mun>")
 def obtener_barrios(mun):
+	"""
+	Recibe el nombre de un municipio y retorna
+	una pagina en formato Json con los barrios
+	correspondientes.
+	"""
 	cursor = connection.cursor()
 	sql = "SELECT nombre FROM test.barrio WHERE(municipio = '{}')".format(mun)
 	cursor.execute(sql)
@@ -248,6 +333,14 @@ def obtener_barrios(mun):
 
 @app.route("/id/<tipo_tabla>/<tipo_id>/<num_id>")
 def obtener_documentos(tipo_tabla,tipo_id,num_id):
+	"""
+	Recibe: tipo_tabla siendo el nombre de la tabla
+	a la cual se quiere acceder (civil, comercio,
+	admin, entidad_sanitaria), tipo_id (CC, TI, TE,
+	NIT, RUT), num_id con los que retorna una pagina
+	en formato Json, se usa para verificar la
+	existencia de un documento en la base de datos.
+	"""
 	cursor = connection.cursor()
 	num_id = int(num_id)
 	sql = "SELECT tipo_id FROM test.{} WHERE(tipo_id = '{}' AND num_id = {})".format(tipo_tabla,tipo_id,num_id)
@@ -260,6 +353,13 @@ def obtener_documentos(tipo_tabla,tipo_id,num_id):
 
 @app.route("/user/<usr>")
 def obtener_usuarios(usr):
+	"""
+	Recibe un nombre de usuario, con el cual verifica
+	su existencia en la base de datos y retorna una
+	pagina en formato Json en la cual si esta vacia,
+	indica que el usuario no existe en la base de datos
+	en general.
+	"""
 	cursor = connection.cursor()
 	sql1 = "SELECT usuario FROM test.civil WHERE('{}' = usuario)".format(usr)
 	sql2 = "SELECT usuario FROM test.administrador WHERE('{}' = usuario)".format(usr)
@@ -281,6 +381,166 @@ def obtener_usuarios(usr):
 	for u4 in user4: usuarios.append(u4[0])
 
 	return jsonify({'usuarios':usuarios})
+
+
+@app.route("/local-QR/",methods=["GET","POST"])
+def local_QR():
+	"""
+	Retorna la pagina para inscripcion por codigo QR
+	para el usuario local.
+	"""
+	if "tipo" not in session or session['tipo'] != 2:
+		return redirect(url_for("index"))
+	if request.method == "GET":
+		return render_template("local_QR.html")
+	else:
+		cursor = connection.cursor()
+
+		#Decodificar imagen QR
+		aux1 = decode(Image.open(request.files['codigo_QR']))
+		#Leer informacion del codigo QR
+		aux = aux1[0].data.decode('ascii')
+		tipo_id, num_id = aux[:2],aux[3:]
+		sql = "SELECT COUNT(*) FROM test.civil WHERE(tipo_id = '{}' AND num_id = {})".format(tipo_id,num_id)
+		cursor.execute(sql)
+		usuario = cursor.fetchone()
+		if not usuario[0]:
+			flash('no_usuario')
+			return render_template("local_QR.html")
+		
+		sql = "SELECT fecha FROM test.historial_pruebas WHERE(tipo_id_persona = '{}' AND num_id_persona = {}) ORDER BY fecha DESC".format(tipo_id,num_id)
+		cursor.execute(sql)
+		prueba = cursor.fetchall()
+
+		permitido = 1
+		if len(prueba):
+			#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
+			fecha = prueba[0][0]
+			fecha = date(int(fecha[:4]),int(fecha[5:7]),int(fecha[8:]))
+			fechaMin = date.today() - timedelta(days=15)
+			if fecha >= fechaMin: permitido = 0
+
+		tapabocas = 'SI'
+		if 'tapabocas' not in request.form:
+			permitido = 0
+			tapabocas = 'NO'
+
+		if not 35<=float(request.form['temp'])<38: permitido = 0
+
+		if permitido: ingreso = 'SI'
+		else: ingreso = 'NO'
+
+		sql = "SELECT COUNT(*) FROM test.visita"
+		cursor.execute(sql)
+		N = cursor.fetchone()[0]
+
+		fechayhora = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
+		sql = "INSERT INTO test.visita VALUES({},'{}',{},'{}','{}',{},'{}',{},'{}')".format(N+1,tipo_id,num_id,fechayhora,session['tipo_id'],session['num_id'],tapabocas,request.form['temp'],ingreso)
+		cursor.execute(sql)
+		connection.commit()
+
+		if not permitido: flash('no_apto')
+		return redirect(url_for("index"))
+
+
+@app.route("/local-no-QR/",methods=["GET","POST"])
+def local_no_QR():
+	"""
+	Retorna la pagina para inscripcion sin codigo QR
+	para el usuario local.
+	"""
+	if "tipo" not in session or session['tipo'] != 2:
+		return redirect(url_for("index"))
+	if request.method == "GET":
+		return render_template("local_no_QR.html")
+	else:
+		cursor = connection.cursor()
+
+		tipo_id, num_id = request.form['tipo_id'], request.form['num_id']
+		sql = "SELECT COUNT(*) FROM test.civil WHERE(tipo_id = '{}' AND num_id = {})".format(tipo_id,num_id)
+		cursor.execute(sql)
+		usuario = cursor.fetchone()
+		if not usuario[0]:
+			flash('no_usuario')
+			return render_template("local_no_QR.html")
+
+		sql = "SELECT fecha FROM test.historial_pruebas WHERE(tipo_id_persona = '{}' AND num_id_persona = {}) ORDER BY fecha DESC".format(tipo_id,num_id)
+		cursor.execute(sql)
+		prueba = cursor.fetchall()
+
+		permitido = 1
+		if len(prueba):
+			#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
+			fecha = prueba[0][0]
+			fecha = date(int(fecha[:4]),int(fecha[5:7]),int(fecha[8:]))
+			fechaMin = date.today() - timedelta(days=15)
+			if fecha >= fechaMin: permitido = 0
+
+		tapabocas = 'SI'
+		if 'tapabocas' not in request.form:
+			permitido = 0
+			tapabocas = 'NO'
+
+		if not 35<=float(request.form['temp'])<38: permitido = 0
+
+		if permitido: ingreso = 'SI'
+		else: ingreso = 'NO'
+
+		sql = "SELECT COUNT(*) FROM test.visita"
+		cursor.execute(sql)
+		N = cursor.fetchone()[0]
+
+		fechayhora = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
+		sql = "INSERT INTO test.visita VALUES({},'{}',{},'{}','{}',{},'{}',{},'{}')".format(N+1,tipo_id,num_id,fechayhora,session['tipo_id'],session['num_id'],tapabocas,request.form['temp'],ingreso)
+		cursor.execute(sql)
+		connection.commit()
+
+		if not permitido: flash('no_apto')
+		return redirect(url_for("index"))
+
+
+@app.route("/local-destiempo/",methods=["GET","POST"])
+def local_destiempo():
+	"""
+	Retorna la pagina para inscripcion a destiempo
+	para el usuario local.
+	"""
+	if "tipo" not in session or session['tipo'] != 2:
+		return redirect(url_for("index"))
+	if request.method == "GET":
+		return render_template("local_no_QR_des.html")
+	else:
+		cursor = connection.cursor()
+
+		tipo_id, num_id = request.form['tipo_id'], request.form['num_id']
+		sql = "SELECT COUNT(*) FROM test.civil WHERE(tipo_id = '{}' AND num_id = {})".format(tipo_id,num_id)
+		cursor.execute(sql)
+		usuario = cursor.fetchone()
+		if not usuario[0]:
+			flash('no_usuario')
+			return render_template("local_no_QR_des.html")
+
+		sql = "SELECT fecha FROM test.historial_pruebas WHERE(tipo_id_persona = '{}' AND num_id_persona = {}) ORDER BY fecha DESC".format(tipo_id,num_id)
+		cursor.execute(sql)
+		prueba = cursor.fetchall()
+
+		fechayhora = request.form['fecha']+' '+request.form['hora']+':00'
+
+		tapabocas = 'SI'
+		if 'tapabocas' not in request.form: tapabocas = 'NO'
+
+		if not 35<=float(request.form['temp'])<38: permitido = 0
+
+		sql = "SELECT COUNT(*) FROM test.visita"
+		cursor.execute(sql)
+		N = cursor.fetchone()[0]
+
+		fechayhora = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
+		sql = "INSERT INTO test.visita VALUES({},'{}',{},'{}','{}',{},'{}',{},'{}')".format(N+1,tipo_id,num_id,fechayhora,session['tipo_id'],session['num_id'],tapabocas,request.form['temp'],'SI')
+		cursor.execute(sql)
+		connection.commit()
+
+		return redirect(url_for("index"))
 
 
 if __name__ == "__main__":
