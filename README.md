@@ -1,6 +1,7 @@
 Proyecto de gestion y aforo por COVID-19
 
 Framework usado: Flask
+
 Librerias de Python usadas:
 - flask-bcrypt
 - pymysql
