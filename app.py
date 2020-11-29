@@ -39,16 +39,9 @@ def index():
 		cursor = connection.cursor()
 
 		if session["tipo"] == 1:
-			sql = "SELECT tipo_id_local,num_id_local,fechayhora FROM test.visita WHERE('{}' = tipo_id_persona AND {} = num_id_persona)".format(session['tipo_id'],session['num_id'])
+			sql = "SELECT nombre,fechayhora FROM (test.comercio  INNER JOIN test.visita ON(tipo_id_persona = '{}' AND num_id_persona = {} AND tipo_id = tipo_id_local AND num_id = num_id_local))".format(session['tipo_id'],session['num_id'])
 			cursor.execute(sql)
-			aux_visitas = cursor.fetchall()
-			visitas = list()
-			for v in aux_visitas:
-				sql = "SELECT nombre FROM test.comercio WHERE('{}' = tipo_id AND {} = num_id)".format(v[0],v[1])
-				cursor.execute(sql)
-				tmp = cursor.fetchone()
-				visitas.append((tmp[0],v[2]))
-
+			visitas = cursor.fetchall()
 			return render_template("usuario.html", visitas=visitas)
 		
 		if session["tipo"] == 2:
@@ -59,7 +52,11 @@ def index():
 			return render_template("local.html",visitas=visitas)
 
 		if session["tipo"] == 3:
-			return render_template("entidad_sanitaria.html")
+			sql = "SELECT id_historial,tipo_id_persona,num_id_persona,fechayhora,resultado FROM test.historial_pruebas WHERE(tipo_id_entidad = '{}' AND num_id_entidad = {})".format(session['tipo_id'],session['num_id'])
+			cursor.execute(sql)
+			pruebas = cursor.fetchall()
+
+			return render_template("entidad_sanitaria.html",pruebas=pruebas)
 		if session["tipo"] == 4:
 			return render_template("admin.html")
 	else:
@@ -408,7 +405,7 @@ def local_QR():
 			flash('no_usuario')
 			return render_template("local_QR.html")
 		
-		sql = "SELECT fecha FROM test.historial_pruebas WHERE(tipo_id_persona = '{}' AND num_id_persona = {}) ORDER BY fecha DESC".format(tipo_id,num_id)
+		sql = "SELECT fecha,resultado FROM test.historial_pruebas WHERE(tipo_id_persona = '{}' AND num_id_persona = {}) ORDER BY fecha DESC".format(tipo_id,num_id)
 		cursor.execute(sql)
 		prueba = cursor.fetchall()
 
@@ -418,7 +415,7 @@ def local_QR():
 			fecha = prueba[0][0]
 			fecha = date(int(fecha[:4]),int(fecha[5:7]),int(fecha[8:]))
 			fechaMin = date.today() - timedelta(days=15)
-			if fecha >= fechaMin: permitido = 0
+			if prueba[0][1]!='Negativo' and fecha >= fechaMin: permitido = 0
 
 		tapabocas = 'SI'
 		if 'tapabocas' not in request.form:
@@ -464,7 +461,7 @@ def local_no_QR():
 			flash('no_usuario')
 			return render_template("local_no_QR.html")
 
-		sql = "SELECT fecha FROM test.historial_pruebas WHERE(tipo_id_persona = '{}' AND num_id_persona = {}) ORDER BY fecha DESC".format(tipo_id,num_id)
+		sql = "SELECT fecha,resultado FROM test.historial_pruebas WHERE(tipo_id_persona = '{}' AND num_id_persona = {}) ORDER BY fecha DESC".format(tipo_id,num_id)
 		cursor.execute(sql)
 		prueba = cursor.fetchall()
 
@@ -474,7 +471,7 @@ def local_no_QR():
 			fecha = prueba[0][0]
 			fecha = date(int(fecha[:4]),int(fecha[5:7]),int(fecha[8:]))
 			fechaMin = date.today() - timedelta(days=15)
-			if fecha >= fechaMin: permitido = 0
+			if prueba[0][1]!='Negativo' and fecha >= fechaMin: permitido = 0
 
 		tapabocas = 'SI'
 		if 'tapabocas' not in request.form:
@@ -541,6 +538,94 @@ def local_destiempo():
 		connection.commit()
 
 		return redirect(url_for("index"))
+
+
+@app.route("/registro-prueba/",methods=["POST"])
+def registro_prueba():
+	if 'tipo' in session and session['tipo'] == 3:
+		cursor = connection.cursor()
+
+		tipo_id, num_id = request.form['tipo_id1'], request.form['num_id1']
+		sql = "SELECT COUNT(*) FROM test.civil WHERE(tipo_id = '{}' AND num_id = {})".format(tipo_id,num_id)
+		cursor.execute(sql)
+		usuario = cursor.fetchone()
+		if not usuario[0]:
+			flash('no_usuario')
+			return redirect(url_for("index"))
+
+		sql = "SELECT id_historial FROM test.historial_pruebas WHERE(id_historial = {} AND tipo_id_entidad = '{}' AND num_id_entidad = {})".format(request.form['prueba_id1'],session['tipo_id'],session['num_id'])
+		N = cursor.execute(sql)
+		if N:
+			flash('no_historial')
+			return redirect(url_for("index"))
+
+		sql = "SELECT fechayhora,resultado FROM test.historial_pruebas WHERE(tipo_id_persona = '{}' AND num_id_persona = {} AND tipo_id_entidad = '{}' AND num_id_entidad = {}) ORDER BY fechayhora DESC".format(tipo_id,num_id,session['tipo_id'],session['num_id'])
+		cursor.execute(sql)
+		prueba = cursor.fetchall()
+
+		if len(prueba) and prueba[0][1] == "Ninguno":
+			flash('pendiente')
+			return redirect(url_for("index"))
+
+		fechayhora = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
+		sql = "INSERT INTO test.historial_pruebas VALUES({},'{}',{},'{}',{},'{}','Ninguno')".format(request.form['prueba_id1'],request.form['tipo_id1'],request.form['num_id1'],session['tipo_id'],session['num_id'],fechayhora)
+		cursor.execute(sql)
+		connection.commit()
+
+		return redirect(url_for("index"))
+
+
+@app.route("/registro-resultado/",methods=["POST"])
+def registro_resultado():
+	if 'tipo' in session and session['tipo'] == 3:
+		cursor = connection.cursor()
+
+		sql = "SELECT resultado FROM test.historial_pruebas WHERE(id_historial = {} AND tipo_id_entidad = '{}' AND num_id_entidad = {})".format(request.form['prueba_id2'],session['tipo_id'],session['num_id'])
+		N = cursor.execute(sql)
+		resultado = cursor.fetchone()
+		if not N:
+			flash('no_prueba')
+			return redirect(url_for("index"))
+
+		if resultado[0] != "Ninguno":
+			flash('reportado')
+			return redirect(url_for("index"))
+
+		sql = "UPDATE test.historial_pruebas SET resultado = '{}' WHERE (id_historial = {} AND tipo_id_entidad = '{}' AND num_id_entidad = '{}')".format(request.form['desicion'],request.form['prueba_id2'],session['tipo_id'],session['num_id'])
+		cursor.execute(sql)
+		connection.commit()
+		
+		return redirect(url_for("index"))
+
+
+@app.route("/gestionar-locales/")
+def gestionar_locales():
+	return render_template("admin_gestionarLocales.html")
+
+
+@app.route("/gestionar-solicitudes/")
+def gestionar_solicitudes():
+	return render_template("admin_gestionarSolicitudes.html")
+
+
+@app.route("/gestionar-usuarios/")
+def gestionar_usuarios():
+	return render_template("admin_gestionarUsuarios.html")
+
+
+@app.route("/gestionar-admins/")
+def gestionar_admins():
+	return render_template("admin_gestionarAdmins.html")
+
+
+@app.route("/gestionar-barrios/")
+def gestionar_barrios():
+	return render_template("admin_gestionarBarrios.html")
+
+
+@app.route("/gestionar-categorias/")
+def gestionar_categorias():
+	return render_template("admin_gestionarCategorias.html")
 
 
 if __name__ == "__main__":
