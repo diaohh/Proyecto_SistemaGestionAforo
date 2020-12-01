@@ -612,4 +612,4 @@ def gestionar_categorias():
 
 if __name__ == "__main__":
 	app.secret_key = "jda()/_s8U9??¡!823jeD"
-	app.run(debug=True)	
+	app.run(host='0.0.0.0',port='8080',debug=True)	
