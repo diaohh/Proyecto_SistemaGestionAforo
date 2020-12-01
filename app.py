@@ -16,12 +16,15 @@ from pymongo import MongoClient
 #Usado para insertar el valor NaN en la base de datos
 from numpy import nan
 
+#Pasar base de datos como parametro
+from sys import argv
+
 #aplicativo flask
 app = Flask(__name__)
 #Modulo para encriptacion de contraseñas
 bcrypt = Bcrypt(app)
-#Coneccion con la base de datos
-cliente = MongoClient(...)
+#Coneccion con la base de datos recibida como parametro en el llamado
+cliente = MongoClient(argv[1])
 bd = cliente['projectdb']
 
 
