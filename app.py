@@ -63,6 +63,7 @@ def index():
 
 			return render_template("entidad_sanitaria.html",pruebas=pruebas)
 		if session["tipo"] == 4:
+			print('XDDDDDDASLKDJASKLDJSALDJASJKLDSKLAJ')
 			return render_template("admin.html")
 	else:
 		return render_template("index.html")
@@ -98,9 +99,8 @@ def inicio_sesion():
 		contrasena = request.form['contrasena']
 		tipo_cuenta = 0 # 1: Civil, 2: Comercio, 3: Entidad Sanitaria, 4: admin
 
-		usuario_bd = bd['civil'].find({'usuario':usuario})
-		if usuario_bd.count():
-			usuario_bd = usuario_bd[0]
+		usuario_bd = bd['civil'].find_one({'usuario':usuario})
+		if usuario_bd:
 			if bcrypt.check_password_hash(usuario_bd['contrasena'].encode('utf-8'),contrasena.encode('utf-8')):
 				if usuario_bd['pendiente'] == 1:
 					flash('pendiente')
@@ -111,9 +111,8 @@ def inicio_sesion():
 					session['tipo_id'] = usuario_bd['tipo_id']
 					session['num_id'] = usuario_bd['num_id']
 		
-		usuario_bd = bd['comercio'].find({'usuario':usuario})
-		if usuario_bd.count():
-			usuario_bd = usuario_bd[0]
+		usuario_bd = bd['comercio'].find_one({'usuario':usuario})
+		if usuario_bd:
 			if bcrypt.check_password_hash(usuario_bd['contrasena'].encode('utf-8'),contrasena.encode('utf-8')):
 				if usuario_bd['pendiente'] == 1:
 					flash('pendiente')
@@ -124,9 +123,8 @@ def inicio_sesion():
 					session['tipo_id'] = usuario_bd['tipo_id']
 					session['num_id'] = usuario_bd['num_id']
 		
-		usuario_bd = bd['entidad_sanitaria'].find({'usuario':usuario})
-		if usuario_bd.count():
-			usuario_bd = usuario_bd[0]
+		usuario_bd = bd['entidad_sanitaria'].find_one({'usuario':usuario})
+		if usuario_bd:
 			if bcrypt.check_password_hash(usuario_bd['contrasena'].encode('utf-8'),contrasena.encode('utf-8')):
 				if usuario_bd['pendiente'] == 1:
 					flash('pendiente')
@@ -137,13 +135,12 @@ def inicio_sesion():
 					session['tipo_id'] = usuario_bd['tipo_id']
 					session['num_id'] = usuario_bd['num_id']
 		
-		usuario_bd = bd['administrador'].find({'usuario':usuario})
-		if usuario_bd.count():
-			usuario_bd = usuario_bd[0]
+		usuario_bd = bd['administrador'].find_one({'usuario':usuario})
+		if usuario_bd:
 			if bcrypt.check_password_hash(usuario_bd['contrasena'].encode('utf-8'),contrasena.encode('utf-8')):
-				session['usuario'] = usuario_bd
+				session['usuario'] = usuario
 				session['tipo'] = 4
-		
+
 		if len(session): return redirect(url_for("index"))
 		flash('incorrecto')
 		return render_template("inicio_de_sesion.html")
