@@ -55,7 +55,7 @@
 				<label for="departamento">Departamento de residencia</label>
 				<select id="departamento" name="departamento">
 					{% for departamento in departamentos %}
-						<option value="{{departamento[0]}}">{{departamento}}</option>
+						<option value="{{departamento}}">{{departamento}}</option>
 					{% endfor %}
 				</select><br><br>
 
@@ -66,7 +66,7 @@
 			</div>
 			<div class="col-md-3">	
 				<label for="barrio">Barrio de residencia</label>
-				<select id="barrio" name="barrio">
+				<select id="barrio" name="barrio" required>
 				</select><br><br>
 				<input type="text" id="direccion" name="direccion" placeholder="Direccion de residencia" required><br><br>
 				<input type="email" id="correo" name="correo" placeholder="Correo electronico" required><br><br>

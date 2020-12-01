@@ -353,7 +353,7 @@ def obtener_documentos(tipo_tabla,tipo_id,num_id):
 	existencia de un documento en la base de datos.
 	"""
 	docs = list()
-	for u in bd[tipo].find({'tipo_id':tipo_id,'num_id':num_id}): docs.append(u['tipo_id']) 
+	for u in bd[tipo_tabla].find({'tipo_id':tipo_id,'num_id':num_id}): docs.append(u['tipo_id'])
 	return jsonify({'docs':docs})
 
 

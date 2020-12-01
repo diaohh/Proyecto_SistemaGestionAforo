@@ -56,7 +56,7 @@ contrasena.onkeyup = function() {
 
 	comparar_contrasenas()
 }
-contrasena2.onblur = function(){ comparar_contrasenas() }
+contrasena2.onkeyup = function(){ comparar_contrasenas() }
 function comparar_contrasenas(){
 	var aux1 = contrasena.value;
 	var aux2 = contrasena2.value
