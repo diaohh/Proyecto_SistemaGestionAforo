@@ -45,9 +45,16 @@
 							<th>Direccion de residencia</th>
 							<th>Correo electronico</th>
 							<th>Telefono de contacto</th>
+							<th></th>
+							<th></th>
 						</tr>
 						{% for usuario in usuarios %}
 							<tr>
+								<form action="/gestionar-solicitudes/registro/civil" method="POST">
+								<input type="hidden" name="tipo_id" value="{{usuario[1]}}">
+								<input type="hidden" name="num_id" value="{{usuario[2]}}">
+								<input type="hidden" name="correo" value="{{usuario[11]}}">
+								<input type="hidden" name="nombre" value="{{usuario[5]}}">
 								<td>{{usuario[1]}}</td>
 								<td>{{usuario[2]}}</td>
 								<td>{{usuario[5]}}</td>
@@ -59,6 +66,9 @@
 								<td>{{usuario[10]}}</td>
 								<td>{{usuario[11]}}</td>
 								<td>{{usuario[12]}}</td>
+								<td><button type="submit" name="aceptar">Aceptar</button></td>
+								<td><button type="submit" name="rechazar">Rechazar</button></td>
+								</form>
 							</tr>
 						{% endfor %}
 					</table>

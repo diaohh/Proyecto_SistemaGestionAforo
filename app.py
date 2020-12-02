@@ -6,6 +6,9 @@ from flask_bcrypt import Bcrypt
 from pyzbar.pyzbar import decode
 from PIL import Image
 
+#Generacion de imagen QR
+import pyqrcode
+
 #Manejo de tiempos
 from datetime import date,timedelta,datetime
 from time import time
@@ -15,6 +18,10 @@ from pymongo import MongoClient
 
 #Usado para insertar el valor NaN en la base de datos
 from numpy import nan
+
+#Libreria para el uso del correo electronico
+from email.message import EmailMessage
+import smtplib
 
 #Pasar base de datos como parametro
 from sys import argv
@@ -26,6 +33,47 @@ bcrypt = Bcrypt(app)
 #Coneccion con la base de datos recibida como parametro en el llamado
 cliente = MongoClient(argv[1])
 bd = cliente['projectdb']
+
+usuario_correo = argv[2]
+contrasena_correo = argv[3]
+
+#Mensajes predefinidos de respuesta automatica
+mensaje_aprobacion_civil = """
+Hola, {}!
+	
+Se ha aceptado la creacion de su cuenta en el Sistema de gestion de aforo por COVID-19
+Puede iniciar sesion en el mismo apartado del menu principal, con el usuario y contrasena ingresados.
+Al momento de ingresar a un local se le pedira el codigo QR adjunto en este correo que puede descargar,
+en caso de no poseer el codigo QR, puede ser registrado por medio de su tipo y numero de documento
+
+Muchas gracias por usar el portal!.
+"""
+
+mensaje_rechazo_civil = """
+Hola, {}!
+	
+Se ha rechazado la creacion de su cuenta en el Sistema de gestion de aforo por COVID-19
+debido a incosistencia en los datos, si este problema persiste, comuniquese con nuestro servicio de atencion al cliente en el apartado de "Contactanos" en el menu principal, esquina superior derecha.
+
+Muchas gracias por su comprension.
+"""
+
+def enviar_correo(destino, asunto, mensaje, imagen):
+	msj = EmailMessage()
+	msj['Subject'] = asunto
+	msj['From'] = usuario_correo
+	msj['To'] = destino
+	msj.set_content(mensaje)
+
+	if len(imagen):
+		with open(imagen,'rb') as img:
+			archivo = img.read()
+			nombre = img.name
+		msj.add_attachment(archivo,maintype='image',subtype='png',filename="Codigo_QR.png")
+
+	with smtplib.SMTP_SSL('smtp.gmail.com',465) as smtp:
+		smtp.login(usuario_correo,contrasena_correo)
+		smtp.send_message(msj)
 
 
 @app.route("/")
@@ -528,6 +576,9 @@ def local_destiempo():
 
 @app.route("/registro-prueba/",methods=["POST"])
 def registro_prueba():
+	"""
+	Realiza el registro de una prueba realizada a la base de datos
+	"""
 	if 'tipo' in session and session['tipo'] == 3:
 		
 		tipo_id, num_id = request.form['tipo_id1'], request.form['num_id1']
@@ -563,6 +614,10 @@ def registro_prueba():
 
 @app.route("/registro-resultado/",methods=["POST"])
 def registro_resultado():
+	"""
+	Realiza el registro del resultado de una prueba previamente
+	realizada en la base de datos
+	"""
 	if 'tipo' in session and session['tipo'] == 3:
 		N = bd['historial_pruebas'].find({'id_historial':request.form['prueba_id2'],'tipo_id_entidad':session['tipo_id'],'num_id_entidad':session['num_id']})
 		if not N.count():
@@ -581,6 +636,10 @@ def registro_resultado():
 
 @app.route("/gestionar-locales/")
 def gestionar_locales():
+	"""
+	Retorna la pagina de gestion de locales para el usuario
+	administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 
@@ -599,6 +658,10 @@ def gestionar_locales():
 
 @app.route("/gestionar-entidades-sanitarias/")
 def gestionar_entidades_sanitarias():
+	"""
+	Retorna la pagina de gestion de entidades de salud
+	para el usuario administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 
@@ -616,6 +679,10 @@ def gestionar_entidades_sanitarias():
 
 @app.route("/gestionar-solicitudes/")
 def gestionar_solicitudes():
+	"""
+	Retorna el menu para gestion de solicitudes para el 
+	usuario administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 
@@ -624,6 +691,10 @@ def gestionar_solicitudes():
 
 @app.route("/gestionar-usuarios/")
 def gestionar_usuarios():
+	"""
+	Retorna la pagina de gestion de civiles
+	para el usuario administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 
@@ -640,6 +711,10 @@ def gestionar_usuarios():
 
 @app.route("/gestionar-admins/",methods=['GET','POST'])
 def gestionar_admins():
+	"""
+	Retorna la pagina de gestion de administradores
+	para el usuario administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 	
@@ -674,6 +749,10 @@ def gestionar_admins():
 
 @app.route("/gestionar-barrios/",methods=['GET','POST'])
 def gestionar_barrios():
+	"""
+	Retorna la pagina para gestion de barrios para el
+	usuario administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 
@@ -705,6 +784,10 @@ def gestionar_barrios():
 
 @app.route("/gestionar-categorias/",methods=['GET','POST'])
 def gestionar_categorias():
+	"""
+	Retorna la pagina para gestion de categorias para el
+	usuario administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 
@@ -728,8 +811,48 @@ def gestionar_categorias():
 
 @app.route("/gestionar-solicitudes/registro/civil",methods=['GET','POST'])
 def gestionar_solicitudes_registro_civil():
+	"""
+	Retorna la pagina para gestion de solicitudes de
+	registro a civiles para el usuario administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
+
+	if request.method == 'POST':
+		print(request.form)
+		tipo_id = request.form['tipo_id']
+		num_id = request.form['num_id']
+		correo = request.form['correo']
+		nombre = request.form['nombre']
+		
+		if 'aceptar' in request.form:
+
+			QR = pyqrcode.create(tipo_id+'-'+num_id)
+			QR.png('QRs/'+tipo_id+'-'+num_id+'.png',scale=8)
+
+			enviar_correo(correo,
+				"Solicitud de creacion de cuenta",
+				mensaje_aprobacion_civil.format(nombre),
+				'QRs/'+tipo_id+'-'+num_id+'.png'
+			)
+
+			bd['civil'].update_one({
+				'tipo_id':tipo_id,
+				'num_id':num_id
+			},{
+				'$set':{
+					'pendiente':0
+				}
+			})
+
+		else:
+			enviar_correo(correo,
+				"Solicitud de creacion de cuenta",
+				mensaje_rechazo_civil.format(nombre),
+				''
+			)
+
+			bd['civil'].delete_one({'tipo_id':tipo_id,'num_id':num_id})
 
 	usuarios = list()
 	for l in bd['civil'].find({'pendiente':1}):
@@ -744,6 +867,10 @@ def gestionar_solicitudes_registro_civil():
 
 @app.route("/gestionar-solicitudes/registro/comercio",methods=['GET','POST'])
 def gestionar_solicitudes_registro_comercio():
+	"""
+	Retorna la pagina para gestion de solicitudes de
+	registro a comercios para el usuario administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 
@@ -762,6 +889,11 @@ def gestionar_solicitudes_registro_comercio():
 
 @app.route("/gestionar-solicitudes/registro/entidad-sanitaria",methods=['GET','POST'])
 def gestionar_solicitudes_registro_entidad_sanitaria():
+	"""
+	Retorna la pagina para gestion de solicitudes de
+	registro a entidades sanitarias para el usuario
+	administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 
@@ -779,6 +911,10 @@ def gestionar_solicitudes_registro_entidad_sanitaria():
 
 @app.route("/gestionar-solicitudes/modificacion/civil",methods=['GET','POST'])
 def gestionar_solicitudes_modificacion_civil():
+	"""
+	Retorna la pagina para gestion de solicitudes de
+	modificacion a civiles para el usuario administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 	return render_template("admin_gestionarSolicitudes_modificacion_usuarios.html")
@@ -786,6 +922,10 @@ def gestionar_solicitudes_modificacion_civil():
 
 @app.route("/gestionar-solicitudes/modificacion/comercio",methods=['GET','POST'])
 def gestionar_solicitudes_modificacion_comercio():
+	"""
+	Retorna la pagina para gestion de solicitudes de
+	modificacion a comercios para el usuario administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 	return render_template("admin_gestionarSolicitudes_modificacion_locales.html")
@@ -793,6 +933,11 @@ def gestionar_solicitudes_modificacion_comercio():
 
 @app.route("/gestionar-solicitudes/modificacion/entidad-sanitaria",methods=['GET','POST'])
 def gestionar_solicitudes_modificacion_entidad_sanitaria():
+	"""
+	Retorna la pagina para gestion de solicitudes de
+	modificacion a entidades sanitarias para el usuario
+	administrador
+	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 	return render_template("admin_gestionarSolicitudes_modificacion_entidadesSanitarias.html")
