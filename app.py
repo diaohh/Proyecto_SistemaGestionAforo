@@ -178,6 +178,12 @@ def inicio_sesion():
 		flash('incorrecto')
 		return render_template("inicio_de_sesion.html")
 
+
+@app.route("/mi-cuenta/",methods=["GET","POST"])
+def mi_cuenta():
+	pass
+
+
 @app.route("/cerrar-sesion/")
 def cerrar_sesion():
 	"""
@@ -996,5 +1002,5 @@ def gestionar_solicitudes_modificacion_entidad_sanitaria():
 
 
 if __name__ == "__main__":
-	app.secret_key = "jda()/_s8U9??¡!823jeD"
+	app.secret_key = "jda()/_s8U9??¡!823jeD" 
 	app.run(host='0.0.0.0',port='8080',debug=True)	
