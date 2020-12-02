@@ -9,7 +9,7 @@
 		<title>Sistema de gestion de accesos y aforo</title>
 	</head>
 
-	<body style="background-image: url('{{url_for('static',filename='imgs/wall_menu.jpg')}}');">
+	<body style="background-image: url('{{url_for('static',filename='imgs/wall_menu.jpg')}}');" onload="actualizarMuns();">
 		<header>
 			<div class="row">
 				<div class="col-md-1"></div>
@@ -34,40 +34,97 @@
 				<div style="height: 620px ;overflow: auto;">
 					<table id="users_data" cellspacing="0" cellpadding="1" border="1">
 						<tr>
+							<th>ID</th>
 							<th>Barrio</th>
 							<th>Municipio</th>
 							<th>Departamento</th>
 						</tr>
+						{% for barrio in barrios %}
+							<tr>
+								<td>{{barrio[1]}}</td>
+								<td>{{barrio[2]}}</td>
+								<td>{{barrio[3]}}</td>
+								<td>{{barrio[4]}}</td>
+							</tr>
+						{% endfor %}
 					</table>
 				</div>
 			</div>
 			<div class="col-md-1"><div style="width: 5px; background-color: #164545; height: 850px;"></div></div>
 			<div class="col-md-2" style="text-align: center;">
-				<form id="create_neighbor">
+				<form id="crear_barrio" action="/gestionar-barrios/" method="POST">
 					<h5>Añadir barrio</h5><br>
-					<input type="text" id="name" name="name" placeholder="Nombre del barrio"><br>
-					<select id="id_type" name="id_type">
+					<input type="number" id="id_barrio1" name="id_barrio1" placeholder="ID del barrio" required><br>
+					<label for="departamento">Departamento</label>
+					<select id="departamento" name="departamento">
+					{% for departamento in departamentos %}
+						<option value="{{departamento}}">{{departamento}}</option>
+					{% endfor %}
 					</select><br>
-					<select id="id_type" name="id_type">
-					</select><br><br>
+					<label for="municipio">Municipio</label>
+					<select id="municipio" name="municipio">
+					</select><br>
+					<input type="text" id="nombre" name="nombre" placeholder="Nombre del barrio" required><br>
 					<br><button>Añadir barrio</button>
 				</form>
 				<br><hr style="height: 5px; background-color: #164545;"><br>
-				<form id="delete_neighbor">
+				<form id="eliminar_barrio" action="/gestionar-barrios/" method="POST">
 					<h5>Eliminar barrio</h5><br>
-					<input type="text" id="name" name="name" placeholder="Nombre del barrio"><br>
-					<select id="id_type" name="id_type">
-					</select><br>
-					<select id="id_type" name="id_type">
-					</select><br><br>
+					<input type="number" id="id_barrio2" name="id_barrio2" placeholder="ID del barrio" required><br>
 					<br><button>Eliminar barrio</button>
 				</form>
 				<br><hr style="height: 5px; background-color: #164545;"><br>
-				<br><button type="button" onclick="window.location.href='/'">Volver</button><br><br>
+				<button type="button" onclick="window.location.href='/'">Volver</button><br><br>
 
 			</div>
 			<div class="col-md-1"></div>
 		</div>
+	<script type="text/javascript">
+		var departamento = document.getElementById("departamento")
+		var municipio = document.getElementById("municipio")
+		function actualizarMuns(){
+			dep = departamento.value;
+			fetch('/muns/'+dep).then(function(aux){
+				aux.json().then(function(muns){
+					let auxHTML = '';
+					for(let m of muns.municipios){
+						auxHTML += '<option value="'+ m +'">'+ m +'</option>';
+					}
+					municipio.innerHTML = auxHTML;
+				})
+			});
+		}
+		departamento.onchange = function(){ actualizarMuns(); }
 
+	</script>
+		{% with mensajes = get_flashed_messages() %}
+		{% if mensajes %}
+			{% for m in mensajes %}
+				{% if m == 'no_id' %}
+					<div id="popup_registro" class="bloquear">
+						<div class="contenido">
+							<h3><b>Error en el registro</b></h3><br>
+							<p>
+							Se ha producido un error en el registro del
+							barrio, el ID ingresado ya se encuentra registrado en la base de datos.
+							</p>
+							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Finalizar</button>
+						</div>
+					</div>
+				{% elif m == 'no_id_elim' %}
+					<div id="popup_registro" class="bloquear">
+						<div class="contenido">
+							<h3><b>Error en la eliminacion</b></h3><br>
+							<p>
+							Se ha producido un error en la eliminacion
+							del barrio, el ID ingresado no se encuentra registrado en la base de datos.
+							</p>
+							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Finalizar</button>
+						</div>
+					</div>
+				{% endif %}
+			{% endfor %}
+		{% endif %}
+		{% endwith %}
 	</body>
 </html>

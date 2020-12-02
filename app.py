@@ -63,7 +63,6 @@ def index():
 
 			return render_template("entidad_sanitaria.html",pruebas=pruebas)
 		if session["tipo"] == 4:
-			print('XDDDDDDASLKDJASKLDJSALDJASJKLDSKLAJ')
 			return render_template("admin.html")
 	else:
 		return render_template("index.html")
@@ -93,7 +92,10 @@ def inicio_sesion():
 	"""
 	
 	if request.method =='GET':
-		return render_template("inicio_de_sesion.html")
+		if 'tipo' not in session:
+			return render_template("inicio_de_sesion.html")
+		else:
+			return redirect(url_for("index"))
 	else: 
 		usuario = request.form['usuario']
 		contrasena = request.form['contrasena']
@@ -137,7 +139,7 @@ def inicio_sesion():
 		
 		usuario_bd = bd['administrador'].find_one({'usuario':usuario})
 		if usuario_bd:
-			if bcrypt.check_password_hash(usuario_bd['contrasena'].encode('utf-8'),contrasena.encode('utf-8')):
+			if usuario_bd['contrasena'] == contrasena:
 				session['usuario'] = usuario
 				session['tipo'] = 4
 
@@ -579,32 +581,134 @@ def registro_resultado():
 
 @app.route("/gestionar-locales/")
 def gestionar_locales():
-	return render_template("admin_gestionarLocales.html")
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+
+	locales = list()
+	for l in bd['comercio'].find({}):
+		aux = list(l.values())
+		if str(aux[10]) == 'nan': aux[10] = 'N/A'
+		if str(aux[11]) == 'nan': aux[11] = 'N/A'
+		barrio = bd['barrio'].find_one({'id_barrio':aux[6]})
+		aux.append(barrio['municipio'])
+		aux.append(barrio['nombre'])
+		locales.append(aux)
+
+	return render_template("admin_gestionarLocales.html",locales=locales)
 
 
 @app.route("/gestionar-solicitudes/")
 def gestionar_solicitudes():
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+
 	return render_template("admin_gestionarSolicitudes.html")
 
 
 @app.route("/gestionar-usuarios/")
 def gestionar_usuarios():
-	return render_template("admin_gestionarUsuarios.html")
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+
+	usuarios = list()
+	for l in bd['civil'].find({}):
+		aux = list(l.values())
+		barrio = bd['barrio'].find_one({'id_barrio':aux[9]})
+		aux.append(barrio['municipio'])
+		aux.append(barrio['nombre'])
+		usuarios.append(aux)
+
+	return render_template("admin_gestionarUsuarios.html",usuarios=usuarios)
 
 
-@app.route("/gestionar-admins/")
+@app.route("/gestionar-admins/",methods=['GET','POST'])
 def gestionar_admins():
-	return render_template("admin_gestionarAdmins.html")
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+	
+	if request.method == 'POST':
+		nombre = request.form['nombre']
+		apellido = request.form['apellido']
+		usuario = request.form['usuario']
+		contrasena = request.form['contrasena']
+
+		N = 0
+		usuarios = list()
+		N += bd['civil'].find({'usuario':usuario}).count()
+		N += bd['administrador'].find({'usuario':usuario}).count()
+		N += bd['comercio'].find({'usuario':usuario}).count()
+		N += bd['entidad_sanitariad'].find({'usuario':usuario}).count()
+
+		if N:
+			flash('no_usuario')
+		else:	
+			bd['administrador'].insert_one({
+				'usuario':usuario,
+				'contrasena': contrasena,
+				'nombres': nombre,
+				'apellidos':apellido
+			})
+
+	administradores = list()
+	for l in bd['administrador'].find({}): administradores.append(list(l.values()))
+
+	return render_template("admin_gestionarAdmins.html",administradores=administradores)
 
 
-@app.route("/gestionar-barrios/")
+
+
+@app.route("/gestionar-barrios/",methods=['GET','POST'])
 def gestionar_barrios():
-	return render_template("admin_gestionarBarrios.html")
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+
+	if request.method =='POST':
+		if 'id_barrio1' in request.form:
+			if not bd['barrio'].find_one({'id_barrio':request.form['id_barrio1']}):
+				bd['barrio'].insert_one({
+				'id_barrio':request.form['id_barrio1'],
+				'nombre': request.form['nombre'],
+				'municipio': request.form['municipio'],
+				'departamento':request.form['departamento']
+				})
+			else:
+				flash('no_id')
+		else:
+			if bd['barrio'].find_one({'id_barrio':request.form['id_barrio2']}):
+				bd['barrio'].delete_one({'id_barrio':request.form['id_barrio2']})
+			else:
+				flash('no_id_elim')
+
+	departamentos = list()
+	for d in bd['departamento'].find({}): departamentos.append(d['nombre'])
+
+	barrios = list()
+	for b in bd['barrio'].find({}): barrios.append(list(b.values()))
+	
+	return render_template("admin_gestionarBarrios.html",barrios=barrios, departamentos=departamentos)
 
 
-@app.route("/gestionar-categorias/")
+@app.route("/gestionar-categorias/",methods=['GET','POST'])
 def gestionar_categorias():
-	return render_template("admin_gestionarCategorias.html")
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+
+	if request.method == 'POST':
+		if 'nombre' in request.form:
+			if not bd['categoria'].find_one({'nombre':request.form['nombre']}):
+				bd['categoria'].insert_one({'nombre':request.form['nombre']})
+			else:
+				flash('no_nombre')
+		else:
+			if bd['categoria'].find_one({'nombre':request.form['categoria']}):
+				bd['categoria'].delete_one({'nombre':request.form['categoria']})
+			else:
+				flash('no_nombre_elim')
+
+	categorias = list()
+	for c in bd['categoria'].find({}): categorias.append(c['nombre'])
+
+	return render_template("admin_gestionarCategorias.html",categorias=categorias)
 
 
 if __name__ == "__main__":

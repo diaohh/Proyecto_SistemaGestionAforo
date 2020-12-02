@@ -45,6 +45,20 @@
 							<th>Telefono de contacto #2</th>
 							<th>Telefono de contacto #3</th>
 						</tr>
+						{% for local in locales %}
+							<tr>
+								<td>{{local[1]}}</td>
+								<td>{{local[2]}}</td>
+								<td>{{local[5]}}</td>
+								<td>{{local[13]}}</td>
+								<td>{{local[14]}}</td>
+								<td>{{local[7]}}</td>
+								<td>{{local[8]}}</td>
+								<td>{{local[9]}}</td>
+								<td>{{local[10]}}</td>
+								<td>{{local[11]}}</td>
+							</tr>
+						{% endfor %}
 					</table>
 					<div style="text-align-last: center;"><br>
 						<button type="button" onclick="window.location.href='/'">Volver</button><br><br>

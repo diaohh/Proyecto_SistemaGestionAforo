@@ -39,17 +39,25 @@
 							<th>Nombre de usuario</th>
 							<th>Contraseña</th>
 						</tr>
+						{% for adminn in administradores %}
+							<tr>
+								<td>{{adminn[3]}}</td>
+								<td>{{adminn[4]}}</td>
+								<td>{{adminn[1]}}</td>
+								<td>{{adminn[2]}}</td>
+							</tr>
+						{% endfor %}
 					</table>
 				</div>
 			</div>
 			<div class="col-md-1"><div style="width: 5px; background-color: #164545; height: 650px;"></div></div>
 			<div class="col-md-2" style="text-align: center;">
-				<form id="create_admin">
+				<form id="create_admin" action="/gestionar-admins/" method="POST">
 					<h5>Crear cuenta de administrador</h5><br>
-					<input type="text" id="name" name="name" placeholder="Nombres"><br>
-					<input type="text" id="lname" name="lname" placeholder="Apellidos"><br>
-					<input type="text" id="user" name="user" placeholder="Nombre de usuario"><br>
-					<input type="password" id="pass" name="pass" placeholder="Contraseña"><br>
+					<input type="text" id="nombre" name="nombre" placeholder="Nombres" required><br>
+					<input type="text" id="apellido" name="apellido" placeholder="Apellidos" required><br>
+					<input type="text" id="usuario"  name="usuario" placeholder="Nombre de usuario" required><br>
+					<input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required><br>
 					<br><button>Crear cuenta</button>
 				</form>
 				<br><hr style="height: 5px; background-color: #164545;"><br>
@@ -58,6 +66,23 @@
 			</div>
 			<div class="col-md-1"></div>
 		</div>
-
+	{% with mensajes = get_flashed_messages() %}
+		{% if mensajes %}
+			{% for m in mensajes %}
+				{% if m == 'no_usuario' %}
+					<div id="popup_registro" class="bloquear">
+						<div class="contenido">
+							<h3><b>Error en el registro</b></h3><br>
+							<p>
+							Se ha producido un error en el registro de la
+							cuenta, el usuario ingresado ya se encuentra registrado en la base de datos.
+							</p>
+							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Finalizar</button>
+						</div>
+					</div>
+				{% endif %}
+			{% endfor %}
+		{% endif %}
+		{% endwith %}
 	</body>
 </html>

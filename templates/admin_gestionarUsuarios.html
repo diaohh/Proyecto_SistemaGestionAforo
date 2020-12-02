@@ -37,13 +37,30 @@
 							<th>Tipo de documento</th>
 							<th>Numero de documento</th>
 							<th>Nombres</th>
+							<th>Apellidos</th>
 							<th>Genero</th>
 							<th>Fecha de nacimiento</th>
 							<th>Municipio de residencia</th>
+							<th>Barrio de residencia</th>
+							<th>Direccion de residencia</th>
 							<th>Correo electronico</th>
 							<th>Telefono de contacto</th>
-							<th>Prueba realizada</th>
 						</tr>
+						{% for usuario in usuarios %}
+							<tr>
+								<td>{{usuario[1]}}</td>
+								<td>{{usuario[2]}}</td>
+								<td>{{usuario[5]}}</td>
+								<td>{{usuario[6]}}</td>
+								<td>{{usuario[7]}}</td>
+								<td>{{usuario[8]}}</td>
+								<td>{{usuario[14]}}</td>
+								<td>{{usuario[15]}}</td>
+								<td>{{usuario[10]}}</td>
+								<td>{{usuario[11]}}</td>
+								<td>{{usuario[12]}}</td>
+							</tr>
+						{% endfor %}
 					</table>
 					<div style="text-align-last: center;"><br>
 						<button type="button" onclick="window.location.href='/'">Volver</button><br><br>
