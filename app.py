@@ -651,7 +651,6 @@ def gestionar_entidades_sanitarias():
 	entidades = list()
 	for es in bd['entidad_sanitaria'].find({'pendiente':0}):
 		aux = list(es.values())
-		print(aux)
 		barrio = bd['barrio'].find_one({'id_barrio':int(aux[6])})
 		aux.append(barrio['municipio'])
 		aux.append(barrio['nombre'])
@@ -946,7 +945,6 @@ def gestionar_solicitudes_registro_entidad_sanitaria():
 	entidades = list()
 	for es in bd['entidad_sanitaria'].find({'pendiente':1}):
 		aux = list(es.values())
-		print(aux)
 		barrio = bd['barrio'].find_one({'id_barrio':int(aux[6])})
 		aux.append(barrio['municipio'])
 		aux.append(barrio['nombre'])
