@@ -485,7 +485,7 @@ def local_no_QR():
 
 		prueba = list()
 		for p in bd['historial_pruebas'].find({'tipo_id_persona':tipo_id,'num_id_persona':num_id}):  
-			prueba.append((datetime.strptime(p['fecha'], '%Y-%m-%d %H:%M:%S.%f'),p['resultado']))
+			prueba.append((datetime.strptime(p['fecha'], '%Y-%m-%d %H:%M:%S'),p['resultado']))
 
 		permitido = 1
 		if len(prueba):
@@ -542,7 +542,7 @@ def local_destiempo():
 		tapabocas = 'SI'
 		if 'tapabocas' not in request.form: tapabocas = 'NO'
 
-		fechayhora = datetime.strptime(request.form['fecha']+' '+request.form['hora']+':00', '%Y-%m-%d %H:%M:%S.%f')
+		fechayhora = datetime.strptime(request.form['fecha']+' '+request.form['hora']+':00', '%Y-%m-%d %H:%M:%S')
 		bd['visita'].insert_one({
 			'tipo_id_persona':tipo_id,
 			'num_id_persona': num_id,
