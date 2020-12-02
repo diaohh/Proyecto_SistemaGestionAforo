@@ -26,6 +26,9 @@ import smtplib
 #Pasar base de datos como parametro
 from sys import argv
 
+#Mensajes predefinidos de respuesta automatica
+from mensajes import *
+
 #aplicativo flask
 app = Flask(__name__)
 #Modulo para encriptacion de contraseñas
@@ -37,26 +40,6 @@ bd = cliente['projectdb']
 usuario_correo = argv[2]
 contrasena_correo = argv[3]
 
-#Mensajes predefinidos de respuesta automatica
-mensaje_aprobacion_civil = """
-Hola, {}!
-	
-Se ha aceptado la creacion de su cuenta en el Sistema de gestion de aforo por COVID-19
-Puede iniciar sesion en el mismo apartado del menu principal, con el usuario y contrasena ingresados.
-Al momento de ingresar a un local se le pedira el codigo QR adjunto en este correo que puede descargar,
-en caso de no poseer el codigo QR, puede ser registrado por medio de su tipo y numero de documento
-
-Muchas gracias por usar el portal!.
-"""
-
-mensaje_rechazo_civil = """
-Hola, {}!
-	
-Se ha rechazado la creacion de su cuenta en el Sistema de gestion de aforo por COVID-19
-debido a incosistencia en los datos, si este problema persiste, comuniquese con nuestro servicio de atencion al cliente en el apartado de "Contactanos" en el menu principal, esquina superior derecha.
-
-Muchas gracias por su comprension.
-"""
 
 def enviar_correo(destino, asunto, mensaje, imagen):
 	msj = EmailMessage()
@@ -89,7 +72,7 @@ def index():
 		
 		if session["tipo"] == 1:
 			visitas_aux = bd['visita']
-			visitas_aux = visitas_aux.find({"tipo_id_persona":session['tipo_id'], "num_id_persona":session['num_id']})
+			visitas_aux = visitas_aux.find({"ingreso":"SI","tipo_id_persona":session['tipo_id'], "num_id_persona":session['num_id']})
 			visitas = list()
 			for visita in visitas_aux:
 				comercio = bd['comercio'].find({"tipo_id":visita['tipo_id_local'], "num_id":visita['num_id_local']})
@@ -819,7 +802,6 @@ def gestionar_solicitudes_registro_civil():
 		return redirect(url_for("index"))
 
 	if request.method == 'POST':
-		print(request.form)
 		tipo_id = request.form['tipo_id']
 		num_id = request.form['num_id']
 		correo = request.form['correo']
@@ -874,6 +856,38 @@ def gestionar_solicitudes_registro_comercio():
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 
+	if request.method == 'POST':
+		tipo_id = request.form['tipo_id']
+		num_id = request.form['num_id']
+		correo = request.form['correo']
+		nombre = request.form['nombre']
+		
+		if 'aceptar' in request.form:
+
+			enviar_correo(correo,
+				"Solicitud de creacion de cuenta",
+				mensaje_aprobacion_comercio.format(nombre),
+				''
+			)
+
+			bd['comercio'].update_one({
+				'tipo_id':tipo_id,
+				'num_id':num_id
+			},{
+				'$set':{
+					'pendiente':0
+				}
+			})
+
+		else:
+			enviar_correo(correo,
+				"Solicitud de creacion de cuenta",
+				mensaje_rechazo_comercio.format(nombre),
+				''
+			)
+
+			bd['comercio'].delete_one({'tipo_id':tipo_id,'num_id':num_id})
+
 	locales = list()
 	for l in bd['comercio'].find({'pendiente':1}):
 		aux = list(l.values())
@@ -896,6 +910,38 @@ def gestionar_solicitudes_registro_entidad_sanitaria():
 	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
+
+	if request.method == 'POST':
+		tipo_id = request.form['tipo_id']
+		num_id = request.form['num_id']
+		correo = request.form['correo']
+		nombre = request.form['nombre']
+		
+		if 'aceptar' in request.form:
+
+			enviar_correo(correo,
+				"Solicitud de creacion de cuenta",
+				mensaje_aprobacion_entidad_sanitaria.format(nombre),
+				''
+			)
+
+			bd['entidad_sanitaria'].update_one({
+				'tipo_id':tipo_id,
+				'num_id':num_id
+			},{
+				'$set':{
+					'pendiente':0
+				}
+			})
+
+		else:
+			enviar_correo(correo,
+				"Solicitud de creacion de cuenta",
+				mensaje_rechazo_entidad_sanitaria.format(nombre),
+				''
+			)
+
+			bd['entidad_sanitaria'].delete_one({'tipo_id':tipo_id,'num_id':num_id})
 
 	entidades = list()
 	for es in bd['entidad_sanitaria'].find({'pendiente':1}):

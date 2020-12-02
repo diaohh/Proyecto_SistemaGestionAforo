@@ -41,9 +41,16 @@
 							<th>Barrio de entidad</th>
 							<th>Correo de contacto</th>
 							<th>Telefono de contacto</th>
+							<th></th>
+							<th></th>
 						</tr>
 						{% for entidad in entidades %}
 							<tr>
+								<form action="/gestionar-solicitudes/registro/civil" method="POST">
+								<input type="hidden" name="tipo_id" value="{{entidad[1]}}">
+								<input type="hidden" name="num_id" value="{{entidad[2]}}">
+								<input type="hidden" name="correo" value="{{entidad[7]}}">
+								<input type="hidden" name="nombre" value="{{entidad[5]}}">
 								<td>{{entidad[1]}}</td>
 								<td>{{entidad[2]}}</td>
 								<td>{{entidad[5]}}</td>
@@ -51,6 +58,9 @@
 								<td>{{entidad[11]}}</td>
 								<td>{{entidad[7]}}</td>
 								<td>{{entidad[8]}}</td>
+								<td><button type="submit" name="aceptar">Aceptar</button></td>
+								<td><button type="submit" name="rechazar">Rechazar</button></td>
+								</form>
 							</tr>
 						{% endfor %}
 					</table>
