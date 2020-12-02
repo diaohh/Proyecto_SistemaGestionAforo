@@ -539,8 +539,16 @@ def local_destiempo():
 			flash('no_usuario')
 			return render_template("local_no_QR_des.html")
 
+		permitido = 1
 		tapabocas = 'SI'
-		if 'tapabocas' not in request.form: tapabocas = 'NO'
+		if 'tapabocas' not in request.form:
+			permitido = 0
+			tapabocas = 'NO'
+
+		if not 35<=float(request.form['temp'])<38: permitido = 0
+
+		if permitido: ingreso = 'SI'
+		else: ingreso = 'NO'
 
 		fechayhora = datetime.strptime(request.form['fecha']+' '+request.form['hora']+':00', '%Y-%m-%d %H:%M:%S')
 		bd['visita'].insert_one({
@@ -551,7 +559,7 @@ def local_destiempo():
 			'num_id_local':session['num_id'],
 			'tapabocas':tapabocas,
 			'temperatura':request.form['temp'],
-			'ingreso':'SI'
+			'ingreso':ingreso
 		})
 
 		return redirect(url_for("index"))
