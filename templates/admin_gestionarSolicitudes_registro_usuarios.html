@@ -50,7 +50,7 @@
 						</tr>
 						{% for usuario in usuarios %}
 							<tr>
-								<form action="/gestionar-solicitudes/registro/civil" method="POST">
+								<form action="/gestionar-solicitudes/registro/entidad-sanitaria" method="POST">
 								<input type="hidden" name="tipo_id" value="{{usuario[1]}}">
 								<input type="hidden" name="num_id" value="{{usuario[2]}}">
 								<input type="hidden" name="correo" value="{{usuario[11]}}">

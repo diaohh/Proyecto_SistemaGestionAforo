@@ -882,7 +882,6 @@ def gestionar_solicitudes_registro_comercio():
 				mensaje_aprobacion_comercio.format(nombre),
 				''
 			)
-
 			bd['comercio'].update_one({
 				'tipo_id':tipo_id,
 				'num_id':num_id
