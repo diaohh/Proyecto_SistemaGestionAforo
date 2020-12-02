@@ -9,7 +9,7 @@
 		<title>Sistema de gestion de accesos y aforo</title>
 	</head>
 	
-	<body style="background-image: url('{{url_for('static',filename='imgs/wall_menu.jpg')}}');" onload="actualizarMuns();">
+	<body style="background-image: url('{{url_for('static',filename='imgs/wall_menu.jpg')}}');" onload="actualizarMuns_2();">
 		<header>
 			<div class="row">
 				<div class="col-md-1"></div>
@@ -18,9 +18,8 @@
 				</div>
 				<div class="col-md-4">
 					<nav>
-						<a href="/" class="opciones">Inicio</a>
-						<a href="/objetivo" class="opciones">Objetivo</a>
-						<a href="/contactanos" class="opciones">Contactanos</a>
+						<a href="/mi-cuenta/" class="opciones">Mi cuenta</a>
+						<a href="/cerrar-sesion/" class="opciones">Cerrar sesion</a>
 					</nav>
 				</div>
 			</div>
@@ -33,46 +32,64 @@
 			<div class="col-md-3"></div>
 			<div class="col-md-3">
 				<label for="tipo_id">Tipo de documento</label>
-				<select id="tipo_id" name="tipo_id" style="width: 40%">
-					<option value="CC">CC</option>
-					<option value="TI">TI</option>
-					<option value="TE">TE</option> <!-- Tarjeta de extranjeria -->
-				</select><br>
+				<input type="text" id="tipo_id" name="tipo_id" placeholder="Numero de identificacion" value="{{usuario[1]}}" disabled><br><br>
+				
 				<label id="label_num_doc"></label>
-				<input type="text" id="num_id" name="num_id" placeholder="Numero de identificacion" pattern="[0-9]{9,11}" required><br><br>
-				<input type="text" id="nombre" name="nombre" placeholder="Nombres" required><br><br>
-				<input type="text" id="apellido" name="apellido" placeholder="Apellidos" required><br><br>
+				<input type="text" id="num_id" name="num_id" placeholder="Numero de identificacion" value="{{usuario[2]}}" disabled><br><br>
+				
+				<input type="text" id="nombre" name="nombre" placeholder="Nombres" value="{{usuario[5]}}" required><br><br>
+				
+				<input type="text" id="apellido" name="apellido" placeholder="Apellidos" value="{{usuario[6]}}" required><br><br>
 
 				<label for="genero">Genero</label>
 				<select id="genero" name="genero">
+					{% if usuario[7] == 'M' %}
+					<option value="M" selected>Masculino</option>
+					{% else %}
 					<option value="M">Masculino</option>
+					{% endif %}
+					{% if usuario[7] == 'F' %}
+					<option value="F" selected>Femenino</option>
+					{% else %}
 					<option value="F">Femenino</option>
+					{% endif %}
 				</select><br><br>
 
 				<label for="nacimiento">Fecha de nacimiento</label>
-				<input type="date" id="nacimiento" name="nacimiento" placeholder="Fecha de nacimiento" required><br><br>
+				<input type="date" id="nacimiento" name="nacimiento" placeholder="Fecha de nacimiento" value="{{usuario[8]}}" required><br><br>
 
 				<label for="departamento">Departamento de residencia</label>
 				<select id="departamento" name="departamento">
 					{% for departamento in departamentos %}
+						{% if departamento == barrio[4] %}
+						<option value="{{departamento}}" selected>{{departamento}}</option>
+						{% else %}
 						<option value="{{departamento}}">{{departamento}}</option>
+						{% endif %}
+						}
 					{% endfor %}
 				</select><br><br>
 
 				<label for="municipio">Municipio de residencia</label>
 				<select id="municipio" name="municipio">
+					<option value="{{barrio[3]}}" id="mun_seleccionado" selected>{{barrio[3]}}</option>
 				</select><br><br>
 
 			</div>
 			<div class="col-md-3">	
 				<label for="barrio">Barrio de residencia</label>
 				<select id="barrio" name="barrio" required>
+					<option value="{{barrio[2]}}" id="barrio_seleccionado" selected>{{barrio[2]}}</option>
 				</select><br><br>
-				<input type="text" id="direccion" name="direccion" placeholder="Direccion de residencia" required><br><br>
-				<input type="email" id="correo" name="correo" placeholder="Correo electronico" required><br><br>
-				<input type="text" id="telefono" name="telefono" placeholder="Telefono de contacto" pattern="[0-9]{10,10}" required><br>
+
+				<input type="text" id="direccion" name="direccion" placeholder="Direccion de residencia" value="{{usuario[10]}}" required><br><br>
+
+				<input type="email" id="correo" name="correo" placeholder="Correo electronico" value="{{usuario[11]}}" required><br><br>
+
+				<input type="text" id="telefono" name="telefono" placeholder="Telefono de contacto" value="{{usuario[12]}}" pattern="[0-9]{10,10}" required><br>
+
 				<label id="label_usuario"></label>
-				<input type="text" id="usuario" name="usuario" placeholder="Usuario para inicio de sesion" required><br><br>
+				<input type="text" id="usuario" name="usuario" placeholder="Usuario para inicio de sesion" value="{{usuario[3]}}" disabled><br><br>
 
 				<div class="row">
 				<div class="col-md-6">
@@ -97,5 +114,45 @@
 		</form>
 
 	<script language="JavaScript" src="{{url_for('static',filename='js/script_registros.js')}}"></script>
+	<script type="text/javascript">
+		var departamento = document.getElementById("departamento");
+		var municipio = document.getElementById("municipio");
+		var mun = document.getElementById("mun_seleccionado").value;
+		function actualizarMuns_2(){
+			dep = departamento.value;
+			fetch('/muns/'+dep).then(function(aux){
+				aux.json().then(function(muns){
+					let auxHTML = '';
+					for(let m of muns.municipios){
+						if(m == mun){
+							auxHTML += '<option value="'+ m +'" selected>'+ m +'</option>';
+						}else{
+							auxHTML += '<option value="'+ m +'">'+ m +'</option>';
+						}
+					}
+					municipio.innerHTML = auxHTML;
+				})
+			});
+		}
+
+		var barrio = document.getElementById("barrio");
+		var bar = document.getElementById("barrio_seleccionado").value;
+		function actualizarBarrios(){
+			mun = municipio.value;
+			fetch('/barrios/'+mun).then(function(aux){
+				aux.json().then(function(bars){
+					let auxHTML = '';
+					for(let b of bars.barrios){
+						if(b == bar){
+							auxHTML += '<option value="'+ b +'" selected>'+ b +'</option>';
+						}else{
+							auxHTML += '<option value="'+ b +'">'+ b +'</option>';
+						}
+					}
+					barrio.innerHTML = auxHTML;
+				})
+			});
+		}
+	</script>
 	</body>
 </html>

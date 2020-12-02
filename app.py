@@ -181,7 +181,42 @@ def inicio_sesion():
 
 @app.route("/mi-cuenta/",methods=["GET","POST"])
 def mi_cuenta():
-	pass
+	"""
+	Retorna formulario para solicitudes de cambios
+	de datos, siempre y cuando no se haya realizado
+	otra solicitud previamente
+	"""
+	if 'tipo' not in session:
+		return redirect(url_for("index"))
+	
+	elif session['tipo'] == 1:
+		usuario = list(bd['civil'].find_one({
+			'tipo_id':session['tipo_id'],
+			'num_id':session['num_id']
+		}).values())
+
+		barrio = list(bd['barrio'].find_one({
+			'id_barrio':usuario[9]
+		}).values())
+		print(barrio)
+
+		departamentos = list()
+		dep = bd['departamento'].find({})
+		for u in dep:
+			departamentos.append(u['nombre'])
+
+		print(barrio[3])
+		return render_template('usuario_cuenta.html',usuario=usuario,barrio=barrio,departamentos=departamentos)
+
+	
+	elif session['tipo'] == 2: 
+		pass
+	
+	elif session['tipo'] == 3: 
+		pass
+	
+	elif session['tipo'] == 4:
+		pass
 
 
 @app.route("/cerrar-sesion/")
@@ -580,7 +615,7 @@ def registro_prueba():
 		
 		tipo_id, num_id = request.form['tipo_id1'], request.form['num_id1']
 		usuario = bd['civil'].find({'tipo_id':tipo_id,'num_id':num_id})
-		if usuario.count():
+		if not usuario.count():
 			flash('no_usuario')
 			return redirect(url_for("index"))
 
