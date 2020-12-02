@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+		<link rel="stylesheet" href="{{url_for('static',filename='css/estilos.css')}}">
+		<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+		<title>Sistema de gestion de accesos y aforo</title>
+	</head>
+
+	<body style="background-image: url('{{url_for('static',filename='imgs/wall_menu.jpg')}}');">
+		<header>
+			<div class="row">
+				<div class="col-md-1"></div>
+				<div class="col-md-7">
+					<img src="{{url_for('static',filename='imgs/logo3.png')}}" class="logo">
+				</div>
+				<div class="col-md-1"></div>
+				<div class="col-md-3">
+					<nav>
+						<a href="/" class="opciones">Inicio</a>
+						<a href="/admin_cuenta/" class="opciones">Mi cuenta</a>
+						<a href="/cerrar-sesion/" class="opciones">Cerrar sesion</a>
+					</nav>
+				</div>
+			</div>
+		</header>
+		<h1 class="principal">Gestion de entidades sanitarias</h1><br>
+		
+		<div class="row">
+			<div class="col-md-1"></div>
+			<div class="col-md-10">
+				<div style="height: 620px ;overflow: auto;">
+					<table id="users_data" cellspacing="0" cellpadding="1" border="1">
+						<tr>
+							<th>Tipo de identificacion</th>
+							<th>Numero de identificacion</th>
+							<th>Nombre de entidad</th>
+							<th>Municipio de entidad</th>
+							<th>Barrio de entidad</th>
+							<th>Correo de contacto</th>
+							<th>Telefono de contacto</th>
+						</tr>
+						{% for entidad in entidades %}
+							<tr>
+								<td>{{entidad[1]}}</td>
+								<td>{{entidad[2]}}</td>
+								<td>{{entidad[5]}}</td>
+								<td>{{entidad[10]}}</td>
+								<td>{{entidad[11]}}</td>
+								<td>{{entidad[7]}}</td>
+								<td>{{entidad[8]}}</td>
+							</tr>
+						{% endfor %}
+					</table>
+					<div style="text-align-last: center;"><br>
+						<button type="button" onclick="window.location.href='/'">Volver</button><br><br>
+					</div>
+				</div>
+
+			</div>
+			<div class="col-md-1"></div>
+		</div>
+
+	</body>
+</html>

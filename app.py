@@ -585,7 +585,7 @@ def gestionar_locales():
 		return redirect(url_for("index"))
 
 	locales = list()
-	for l in bd['comercio'].find({}):
+	for l in bd['comercio'].find({'pendiente':0}):
 		aux = list(l.values())
 		if str(aux[10]) == 'nan': aux[10] = 'N/A'
 		if str(aux[11]) == 'nan': aux[11] = 'N/A'
@@ -595,6 +595,23 @@ def gestionar_locales():
 		locales.append(aux)
 
 	return render_template("admin_gestionarLocales.html",locales=locales)
+
+
+@app.route("/gestionar-entidades-sanitarias/")
+def gestionar_entidades_sanitarias():
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+
+	entidades = list()
+	for es in bd['entidad_sanitaria'].find({'pendiente':0}):
+		aux = list(es.values())
+		print(aux)
+		barrio = bd['barrio'].find_one({'id_barrio':int(aux[6])})
+		aux.append(barrio['municipio'])
+		aux.append(barrio['nombre'])
+		entidades.append(aux)
+
+	return render_template("admin_gestionarEntidadesSanitarias.html",entidades=entidades)
 
 
 @app.route("/gestionar-solicitudes/")
@@ -611,7 +628,7 @@ def gestionar_usuarios():
 		return redirect(url_for("index"))
 
 	usuarios = list()
-	for l in bd['civil'].find({}):
+	for l in bd['civil'].find({'pendiente':0}):
 		aux = list(l.values())
 		barrio = bd['barrio'].find_one({'id_barrio':aux[9]})
 		aux.append(barrio['municipio'])
@@ -653,8 +670,6 @@ def gestionar_admins():
 	for l in bd['administrador'].find({}): administradores.append(list(l.values()))
 
 	return render_template("admin_gestionarAdmins.html",administradores=administradores)
-
-
 
 
 @app.route("/gestionar-barrios/",methods=['GET','POST'])
@@ -709,6 +724,78 @@ def gestionar_categorias():
 	for c in bd['categoria'].find({}): categorias.append(c['nombre'])
 
 	return render_template("admin_gestionarCategorias.html",categorias=categorias)
+
+
+@app.route("/gestionar-solicitudes/registro/civil",methods=['GET','POST'])
+def gestionar_solicitudes_registro_civil():
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+
+	usuarios = list()
+	for l in bd['civil'].find({'pendiente':1}):
+		aux = list(l.values())
+		barrio = bd['barrio'].find_one({'id_barrio':aux[9]})
+		aux.append(barrio['municipio'])
+		aux.append(barrio['nombre'])
+		usuarios.append(aux)
+
+	return render_template("admin_gestionarSolicitudes_registro_usuarios.html",usuarios=usuarios)
+
+
+@app.route("/gestionar-solicitudes/registro/comercio",methods=['GET','POST'])
+def gestionar_solicitudes_registro_comercio():
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+
+	locales = list()
+	for l in bd['comercio'].find({'pendiente':1}):
+		aux = list(l.values())
+		if str(aux[10]) == 'nan': aux[10] = 'N/A'
+		if str(aux[11]) == 'nan': aux[11] = 'N/A'
+		barrio = bd['barrio'].find_one({'id_barrio':aux[6]})
+		aux.append(barrio['municipio'])
+		aux.append(barrio['nombre'])
+		locales.append(aux)
+
+	return render_template("admin_gestionarSolicitudes_registro_locales.html",locales=locales)
+
+
+@app.route("/gestionar-solicitudes/registro/entidad-sanitaria",methods=['GET','POST'])
+def gestionar_solicitudes_registro_entidad_sanitaria():
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+
+	entidades = list()
+	for es in bd['entidad_sanitaria'].find({'pendiente':1}):
+		aux = list(es.values())
+		print(aux)
+		barrio = bd['barrio'].find_one({'id_barrio':int(aux[6])})
+		aux.append(barrio['municipio'])
+		aux.append(barrio['nombre'])
+		entidades.append(aux)
+
+	return render_template("admin_gestionarSolicitudes_registro_entidadesSanitarias.html",entidades=entidades)
+
+
+@app.route("/gestionar-solicitudes/modificacion/civil",methods=['GET','POST'])
+def gestionar_solicitudes_modificacion_civil():
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+	return render_template("admin_gestionarSolicitudes_modificacion_usuarios.html")
+
+
+@app.route("/gestionar-solicitudes/modificacion/comercio",methods=['GET','POST'])
+def gestionar_solicitudes_modificacion_comercio():
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+	return render_template("admin_gestionarSolicitudes_modificacion_locales.html")
+
+
+@app.route("/gestionar-solicitudes/modificacion/entidad-sanitaria",methods=['GET','POST'])
+def gestionar_solicitudes_modificacion_entidad_sanitaria():
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+	return render_template("admin_gestionarSolicitudes_modificacion_entidadesSanitarias.html")
 
 
 if __name__ == "__main__":
