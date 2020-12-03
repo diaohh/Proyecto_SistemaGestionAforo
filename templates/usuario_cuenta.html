@@ -37,9 +37,9 @@
 				<label for="num_id">Numero de documento</label>
 				<input type="text" id="num_id" name="num_id" placeholder="Numero de identificacion" value="{{usuario[2]}}" disabled><br><br>
 				
-				<input type="text" id="nombre" name="nombre" placeholder="Nombres" value="{{usuario[5]}}" required><br><br>
+				<input type="text" id="nombre" name="nombres" placeholder="Nombres" value="{{usuario[5]}}" required><br><br>
 				
-				<input type="text" id="apellido" name="apellido" placeholder="Apellidos" value="{{usuario[6]}}" required><br><br>
+				<input type="text" id="apellido" name="apellidos" placeholder="Apellidos" value="{{usuario[6]}}" required><br><br>
 
 				<label for="genero">Genero</label>
 				<select id="genero" name="genero">
@@ -119,5 +119,41 @@
 		</form>
 
 	<script language="JavaScript" src="{{url_for('static',filename='js/script_mi_cuenta.js')}}"></script>
+
+	{% with mensajes = get_flashed_messages() %}
+		{% if mensajes %}
+			{% for m in mensajes %}
+				{% if m == 'no_contrasena' %}
+					<div id="popup_registro" class="bloquear">
+						<div class="contenido">
+							<h3><b>Error: solicitud de modificacion!</b></h3><br>
+							<p>
+							Se ha producido un error al enviar la
+							solicitud de modificacion, la contraseña
+							no coincide con la contraseña asociada
+							al usuario, intente nuevamente.
+							</p>
+							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Finalizar</button>
+						</div>
+					</div>
+				{% if m == 'no_solicitud' %}
+					<div id="popup_registro" class="bloquear">
+						<div class="contenido">
+							<h3><b>Error: solicitud de modificacion!</b></h3><br>
+							<p>
+							Se ha producido un error al enviar la
+							solicitud de modificacion, ya existe una
+							solicitud pendiente registrada, será
+							notificado por medio de correo electronico
+							sobre la desicion de esta.
+							</p>
+							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Finalizar</button>
+						</div>
+					</div>
+				{% endif %}
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+
 	</body>
 </html>

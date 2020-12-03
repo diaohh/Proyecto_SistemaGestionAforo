@@ -63,7 +63,7 @@ function comparar_contrasenas(){
 	else{ contrasena2_l.innerHTML = ""; }
 
 	esvalido_contrasena2 = !(aux3)
-	if(esvalido_contrasena && esvalido_contrasena2 && esvalido_usuario){
+	if(esvalido_contrasena && esvalido_contrasena2){
 		boton.disabled = false;
 	}else{
 		boton.disabled = true;

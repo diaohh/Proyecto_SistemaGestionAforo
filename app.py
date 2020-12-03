@@ -191,7 +191,30 @@ def mi_cuenta():
 	
 	elif session['tipo'] == 1:
 		if request.method == 'POST':
-			bd['civil'].find_one()
+			contrasena_usuario = bd['civil'].find_one({'tipo_id':session['tipo_id'],'num_id':session['num_id']})['contrasena']
+			contrasena_actual = request.form['contrasena_act']
+			if bcrypt.check_password_hash(contrasena_usuario.encode('utf-8'),contrasena_actual.encode('utf-8')):
+				if bd['modificacion'].find_one({'tipo_id':session['tipo_id'],'num_id':session['num_id']}):
+					flash('no_solicitud')
+				else:
+					id_barrio = bd['barrio'].find_one({'nombre':request.form['barrio'],'municipio':request.form['municipio']})['id_barrio']
+					bd['modificacion'].insert_one({
+						'tipo_id':session['tipo_id'],
+						'num_id': session['num_id'],
+						'nombres':request.form['nombres'],
+						'apellidos':request.form['apellidos'],
+						'genero':request.form['genero'],
+						'nacimiento':request.form['nacimiento'],
+						'id_barrio':request.form['id_barrio'],
+						'direccion':request.form['direccion'],
+						'correo':request.form['correo'],
+						'telefono':request.form['telefono'],
+						'contrasena_nueva':request.form['contrasena']
+					})
+					flash('correcto')
+
+			else:
+				flash('no_contrasena')
 
 		usuario = list(bd['civil'].find_one({
 			'tipo_id':session['tipo_id'],
