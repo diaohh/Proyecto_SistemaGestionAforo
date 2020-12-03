@@ -29,6 +29,9 @@ from sys import argv
 #Mensajes predefinidos de respuesta automatica
 from mensajes import *
 
+#Usado para generar la contraseña aleatoria
+from random import randint,shuffle
+
 #aplicativo flask
 app = Flask(__name__)
 #Modulo para encriptacion de contraseñas
@@ -201,6 +204,7 @@ def mi_cuenta():
 					contrasena = "" if 'contrasena' not in request.form else (bcrypt.generate_password_hash(request.form['contrasena'].encode('utf-8'))).decode('utf-8')
 					bd['modificacion'].insert_one({
 						'tipo_cuenta':1,
+						'recuperar':0,
 						'tipo_id':session['tipo_id'],
 						'num_id': session['num_id'],
 						'nombres':request.form['nombres'],
@@ -252,6 +256,7 @@ def mi_cuenta():
 					tel3 = nan if 'telefono3' not in request.form else (request.form['telefono3'])
 					bd['modificacion'].insert_one({
 						'tipo_cuenta':2,
+						'recuperar':0,
 						'tipo_id': session['tipo_id'],
 						'num_id': session['num_id'],
 						'nombre':request.form['nombre'],
@@ -307,6 +312,7 @@ def mi_cuenta():
 					contrasena = "" if 'contrasena' not in request.form else (bcrypt.generate_password_hash(request.form['contrasena'].encode('utf-8'))).decode('utf-8')
 					bd['modificacion'].insert_one({
 						'tipo_cuenta':3,
+						'recuperar':0,
 						'tipo_id':session['tipo_id'],
 						'num_id': session['num_id'],
 						'nombre':request.form['nombre'],
@@ -325,7 +331,6 @@ def mi_cuenta():
 			'tipo_id':session['tipo_id'],
 			'num_id':session['num_id']
 		}).values())
-		print(entidad)
 
 		barrio = list(bd['barrio'].find_one({
 			'id_barrio':int(entidad[6])
@@ -367,6 +372,7 @@ def cerrar_sesion():
 	"""
 	session.clear()
 	return redirect(url_for("index"))
+
 
 @app.route("/registro-usuario/",methods=["GET","POST"])
 def registro_usuario():
@@ -527,6 +533,145 @@ def registro_entidad_salud():
 		return redirect(url_for("index"))
 
 	return render_template("entidad_sanitaria_registro.html")
+
+
+@app.route("/recuperar-contrasena/",methods=["GET","POST"])
+def recuperar_contrasena():
+	if'tipo' in session:
+		return redirect(url_for("index"))
+
+	if request.method == 'POST':
+		formulario = int(request.form['tipo_form'])
+		if formulario == 1:
+			tipo_id = request.form['tipo_id']
+			num_id = request.form['num_id']
+			nombres = request.form['nombres']
+			apellidos = request.form['apellidos']
+			genero = request.form['genero']
+			nacimiento = request.form['nacimiento']
+
+			departamento = request.form['departamento']
+			municipio = request.form['municipio']
+			barrio = request.form['barrio']
+			id_barrio = bd['barrio'].find_one({'nombre':barrio,'municipio':municipio,'departamento':departamento})['id_barrio']
+			
+			direccion = request.form['direccion']
+			correo = request.form['correo']
+			telefono = request.form['telefono']
+			usuario = request.form['usuario']
+
+			if bd['civil'].find_one({'tipo_id':tipo_id,'num_id':num_id,'usuario':usuario}):
+				if bd['modificacion'].find_one({'tipo_id':tipo_id,'num_id':num_id}):
+					flash('pendiente')
+				else:
+					bd['modificacion'].insert_one({
+						'tipo_cuenta':1,
+						'recuperar':1,
+						'tipo_id':tipo_id,
+						'num_id': num_id,
+						'nombres':nombres,
+						'apellidos':apellidos,
+						'genero':genero,
+						'nacimiento':nacimiento,
+						'id_barrio':id_barrio,
+						'direccion':direccion,
+						'correo':correo,
+						'telefono':telefono,
+						'contrasena_nueva':''
+					})
+					flash('correcto')
+					return redirect(url_for("inicio_sesion"))
+			else:
+				flash('no_usuario_id')
+
+		elif formulario == 2:
+			tipo_id = request.form['tipo_id']
+			num_id = request.form['num_id']
+			nombre = request.form['nombre']
+			
+			departamento = request.form['departamento']
+			municipio = request.form['municipio']
+			barrio = request.form['barrio']
+			id_barrio = bd['barrio'].find_one({'nombre':barrio,'municipio':municipio,'departamento':departamento})['id_barrio']
+			
+			correo = request.form['correo']
+			categoria = request.form['categoria']
+			telefono1 = request.form['telefono1']
+			telefono2 = nan if 'telefono2' not in request.form else (request.form['telefono2'])
+			telefono3 = nan if 'telefono3' not in request.form else (request.form['telefono3'])
+			usuario = request.form['usuario']
+			if bd['comercio'].find_one({'tipo_id':tipo_id,'num_id':num_id,'usuario':usuario}):
+				if bd['modificacion'].find_one({'tipo_id':tipo_id,'num_id':num_id}):
+					flash('pendiente')
+				else:
+					
+					bd['modificacion'].insert_one({
+						'tipo_cuenta':2,
+						'recuperar':1,
+						'tipo_id': tipo_id,
+						'num_id': num_id,
+						'nombre':nombre,
+						'id_barrio':id_barrio,
+						'correo':correo,
+						'categoria':categoria,
+						'telefono1':telefono1,
+						'telefono2':telefono2,
+						'telefono3':telefono3,
+						'contrasena_nueva':''
+					})
+					flash('correcto')
+					return redirect(url_for("inicio_sesion"))
+			else:
+				flash('no_usuario_id')
+
+		elif formulario == 3:
+			tipo_id = request.form['tipo_id']
+			num_id = request.form['num_id']
+			nombre = request.form['nombre']
+
+			departamento = request.form['departamento']
+			municipio = request.form['municipio']
+			barrio = request.form['barrio']
+			id_barrio = bd['barrio'].find_one({'nombre':barrio,'municipio':municipio,'departamento':departamento})['id_barrio']
+			
+			correo = request.form['correo']
+			telefono = request.form['telefono']
+			usuario = request.form['usuario']
+
+			print(request.form)
+			if bd['entidad_sanitaria'].find_one({'tipo_id':tipo_id,'num_id':num_id,'usuario':usuario}):
+				if bd['modificacion'].find_one({'tipo_id':tipo_id,'num_id':num_id}):
+					flash('pendiente')
+				else:
+					
+					bd['modificacion'].insert_one({
+						'tipo_cuenta':3,
+						'recuperar':1,
+						'tipo_id':tipo_id,
+						'num_id': num_id,
+						'nombre':nombre,
+						'id_barrio':id_barrio,
+						'correo':correo,
+						'telefono':telefono,
+						'contrasena_nueva':''
+					})
+					flash('correcto')
+					return redirect(url_for("inicio_sesion"))
+			else:
+				flash('no_usuario_id')
+			
+
+	departamentos = list()
+	dep = bd['departamento'].find({})
+	for u in dep:
+		departamentos.append(u['nombre'])
+
+	categorias = list()
+	cat = bd['categoria'].find({})
+	for u in cat:
+		categorias.append(u['nombre'])
+
+	return render_template("recuperar_contrasena.html",departamentos=departamentos,categorias=categorias)
 
 
 @app.route("/muns/<dep>")
@@ -1157,42 +1302,79 @@ def gestionar_solicitudes_modificacion_civil():
 		correo_2 = request.form['correo']
 		nombre = request.form['nombre']
 
+		usuario = list(bd['modificacion'].find_one({'tipo_cuenta':1,'tipo_id':tipo_id,'num_id':num_id}).values())
+		
 		if 'aceptar' in request.form:
 
-			usuario = list(bd['modificacion'].find_one({'tipo_cuenta':1,'tipo_id':tipo_id,'num_id':num_id}).values())
+			if usuario[2] == 0:
 
-			bd['civil'].update_one({
-				'tipo_id':tipo_id,
-				'num_id':num_id
-			},{
-				'$set':{
-					'nombres':usuario[4],
-					'apellidos':usuario[5],
-					'genero':usuario[6],
-					'nacimiento':usuario[7],
-					'id_barrio':usuario[8],
-					'direccion':usuario[9],
-					'correo':usuario[10],
-					'telefono':usuario[11]
-				}
-			})
+				bd['civil'].update_one({
+					'tipo_id':tipo_id,
+					'num_id':num_id
+				},{
+					'$set':{
+						'nombres':usuario[5],
+						'apellidos':usuario[6],
+						'genero':usuario[7],
+						'nacimiento':usuario[8],
+						'id_barrio':usuario[9],
+						'direccion':usuario[10],
+						'correo':usuario[11],
+						'telefono':usuario[12]
+					}
+				})
 
-			if len(usuario[12]): bd['civil'].update_one({'tipo_id':tipo_id,'num_id':num_id},{'$set':{'contrasena':usuario[12]}})
-			
-			enviar_correo(correo_1,
-				"Solicitud de modificacion de cuenta",
-				mensaje_aprobacion_mod_civil.format(nombre),
-				'')
-			if correo_1 != correo_2:
-				enviar_correo(correo_2,
+				if len(usuario[13]): bd['civil'].update_one({'tipo_id':tipo_id,'num_id':num_id},{'$set':{'contrasena':usuario[13]}})
+				
+				enviar_correo(correo_1,
 					"Solicitud de modificacion de cuenta",
 					mensaje_aprobacion_mod_civil.format(nombre),
 					'')
+				if correo_1 != correo_2:
+					enviar_correo(correo_2,
+						"Solicitud de modificacion de cuenta",
+						mensaje_aprobacion_mod_civil.format(nombre),
+						'')
+			else:
+				aux_contrasena = list()
+				aux_contrasena.append(chr(randint(65,90)))
+				aux_contrasena.append(chr(randint(97,122)))
+				aux_contrasena.append(chr(randint(48,57)))
+				aux_contrasena.append(chr(randint(58,64)))
+				for _ in range(randint(6,11)):
+					aux_contrasena.append(chr(randint(48,90)))
+
+				shuffle(aux_contrasena)
+				contrasena_tmp = ''.join(aux_contrasena)
+
+				contrasena = (bcrypt.generate_password_hash(contrasena_tmp.encode('utf-8'))).decode('utf-8')
+
+				bd['civil'].update_one({
+					'tipo_id':tipo_id,
+					'num_id':num_id
+				},{
+					'$set':{
+						'contrasena':contrasena
+					}
+				})
+
+				enviar_correo(correo_1,
+					"Solicitud de recuperacion de contraseña",
+					mensaje_aprobacion_cambio_contrasena.format(nombre,contrasena_tmp),
+					'')
+
 		else:
-			enviar_correo(correo_1,
-				"Solicitud de modificacion de cuenta",
-				mensaje_rechazo_mod_civil.format(nombre),
-				'')
+
+			if usuarios[2] == 0:
+				enviar_correo(correo_1,
+					"Solicitud de modificacion de cuenta",
+					mensaje_rechazo_mod_civil.format(nombre),
+					'')
+			else:
+				enviar_correo(correo_1,
+					"Solicitud de recuperacion de contraseña",
+					mensaje_rechazo_cambio_contrasena.format(nombre),
+					'')
 
 		bd['modificacion'].delete_one({'tipo_cuenta':1,'tipo_id':tipo_id,'num_id':num_id})
 			
@@ -1200,11 +1382,13 @@ def gestionar_solicitudes_modificacion_civil():
 	usuarios = list()
 	for l in bd['modificacion'].find({'tipo_cuenta':1}):
 		aux = list(l.values())
-		barrio = bd['barrio'].find_one({'id_barrio':aux[8]})
-		if len(aux[12]): aux.append('SI')
+		barrio = bd['barrio'].find_one({'id_barrio':aux[9]})
+		if len(aux[13]): aux.append('SI')
 		else: aux.append('NO')
 		aux.append(barrio['municipio'])
 		aux.append(barrio['nombre'])
+		if aux[2]: aux[2] = 'SI'; aux[14] = 'SI'
+		else: aux[2] = 'NO'
 		usuarios.append(aux)
 
 	return render_template("admin_gestionarSolicitudes_modificacion_usuarios.html",usuarios=usuarios)
@@ -1226,54 +1410,92 @@ def gestionar_solicitudes_modificacion_comercio():
 		correo_2 = request.form['correo']
 		nombre = request.form['nombre']
 
+		local = list(bd['modificacion'].find_one({'tipo_cuenta':2,'tipo_id':tipo_id,'num_id':num_id}).values())
+		
 		if 'aceptar' in request.form:
 
-			local = list(bd['modificacion'].find_one({'tipo_cuenta':2,'tipo_id':tipo_id,'num_id':num_id}).values())
+			if local[2] == 0:
 
-			bd['comercio'].update_one({
-				'tipo_id':tipo_id,
-				'num_id':num_id
-			},{
-				'$set':{
-					'nombre':local[4],
-					'id_barrio':local[5],
-					'correo':local[6],
-					'categoria':local[7],
-					'telefono1':local[8],
-					'telefono2':local[9],
-					'telefono3':local[10]
-				}
-			})
+				bd['comercio'].update_one({
+					'tipo_id':tipo_id,
+					'num_id':num_id
+				},{
+					'$set':{
+						'nombre':local[5],
+						'id_barrio':local[6],
+						'correo':local[7],
+						'categoria':local[8],
+						'telefono1':local[9],
+						'telefono2':local[10],
+						'telefono3':local[11]
+					}
+				})
 
-			if len(local[11]): bd['comercio'].update_one({'tipo_id':tipo_id,'num_id':num_id},{'$set':{'contrasena':local[11]}})
-			
-			enviar_correo(correo_1,
-				"Solicitud de modificacion de cuenta",
-				mensaje_aprobacion_mod_comercio.format(nombre),
-				'')
-			if correo_1 != correo_2:
-				enviar_correo(correo_2,
+				if len(local[12]): bd['comercio'].update_one({'tipo_id':tipo_id,'num_id':num_id},{'$set':{'contrasena':local[12]}})
+				
+				enviar_correo(correo_1,
 					"Solicitud de modificacion de cuenta",
 					mensaje_aprobacion_mod_comercio.format(nombre),
 					'')
+				if correo_1 != correo_2:
+					enviar_correo(correo_2,
+						"Solicitud de modificacion de cuenta",
+						mensaje_aprobacion_mod_comercio.format(nombre),
+						'')
+			else:
+				aux_contrasena = list()
+				aux_contrasena.append(chr(randint(65,90)))
+				aux_contrasena.append(chr(randint(97,122)))
+				aux_contrasena.append(chr(randint(48,57)))
+				aux_contrasena.append(chr(randint(58,64)))
+				for _ in range(randint(6,11)):
+					aux_contrasena.append(chr(randint(48,90)))
+
+				shuffle(aux_contrasena)
+				contrasena_tmp = ''.join(aux_contrasena)
+
+				contrasena = (bcrypt.generate_password_hash(contrasena_tmp.encode('utf-8'))).decode('utf-8')
+
+				bd['comercio'].update_one({
+					'tipo_id':tipo_id,
+					'num_id':num_id
+				},{
+					'$set':{
+						'contrasena':contrasena
+					}
+				})
+
+				enviar_correo(correo_1,
+					"Solicitud de recuperacion de contraseña",
+					mensaje_aprobacion_cambio_contrasena.format(nombre,contrasena_tmp),
+					'')
+
 		else:
-			enviar_correo(correo_1,
-				"Solicitud de modificacion de cuenta",
-				mensaje_rechazo_mod_comercio.format(nombre),
-				'')
+			if local[2] == 0:
+				enviar_correo(correo_1,
+					"Solicitud de modificacion de cuenta",
+					mensaje_rechazo_mod_comercio.format(nombre),
+					'')
+			else:
+				enviar_correo(correo_1,
+					"Solicitud de recuperacion de contraseña",
+					mensaje_rechazo_cambio_contrasena.format(nombre),
+					'')
 
 		bd['modificacion'].delete_one({'tipo_cuenta':2,'tipo_id':tipo_id,'num_id':num_id})
 
 	locales = list()
 	for l in bd['modificacion'].find({'tipo_cuenta':2}):
 		aux = list(l.values())
-		if str(aux[9]) == 'nan': aux[9] = 'N/A'
 		if str(aux[10]) == 'nan': aux[10] = 'N/A'
-		if len(aux[11]): aux.append('SI')
+		if str(aux[11]) == 'nan': aux[11] = 'N/A'
+		if len(aux[12]): aux.append('SI')
 		else: aux.append('NO')
-		barrio = bd['barrio'].find_one({'id_barrio':aux[5]})
+		barrio = bd['barrio'].find_one({'id_barrio':aux[6]})
 		aux.append(barrio['municipio'])
 		aux.append(barrio['nombre'])
+		if aux[2]: aux[2] = 'SI'; aux[13] = 'SI'
+		else: aux[2] = 'NO'
 		locales.append(aux)
 
 	return render_template("admin_gestionarSolicitudes_modificacion_locales.html",locales=locales)
@@ -1296,49 +1518,89 @@ def gestionar_solicitudes_modificacion_entidad_sanitaria():
 		correo_2 = request.form['correo']
 		nombre = request.form['nombre']
 
+		entidad = list(bd['modificacion'].find_one({'tipo_cuenta':3,'tipo_id':tipo_id,'num_id':num_id}).values())
+		
 		if 'aceptar' in request.form:
 
-			entidad = list(bd['modificacion'].find_one({'tipo_cuenta':3,'tipo_id':tipo_id,'num_id':num_id}).values())
+			if entidad[2] == 0:
 
-			bd['entidad_sanitaria'].update_one({
-				'tipo_id':tipo_id,
-				'num_id':num_id
-			},{
-				'$set':{
-					'nombre':entidad[4],
-					'id_barrio':entidad[5],
-					'correo':entidad[6],
-					'telefono':entidad[7]
-				}
-			})
+				bd['entidad_sanitaria'].update_one({
+					'tipo_id':tipo_id,
+					'num_id':num_id
+				},{
+					'$set':{
+						'nombre':entidad[5],
+						'id_barrio':entidad[6],
+						'correo':entidad[7],
+						'telefono':entidad[8]
+					}
+				})
 
-			if len(entidad[8]): bd['entidad_sanitaria'].update_one({'tipo_id':tipo_id,'num_id':num_id},{'$set':{'contrasena':entidad[8]}})
-			
-			enviar_correo(correo_1,
-				"Solicitud de modificacion de cuenta",
-				mensaje_aprobacion_mod_entidad_sanitaria.format(nombre),
-				'')
-			if correo_1 != correo_2:
-				enviar_correo(correo_2,
+				if len(entidad[9]): bd['entidad_sanitaria'].update_one({'tipo_id':tipo_id,'num_id':num_id},{'$set':{'contrasena':entidad[9]}})
+				
+				enviar_correo(correo_1,
 					"Solicitud de modificacion de cuenta",
 					mensaje_aprobacion_mod_entidad_sanitaria.format(nombre),
 					'')
+				if correo_1 != correo_2:
+					enviar_correo(correo_2,
+						"Solicitud de modificacion de cuenta",
+						mensaje_aprobacion_mod_entidad_sanitaria.format(nombre),
+						'')
+
+			else:
+				aux_contrasena = list()
+				aux_contrasena.append(chr(randint(65,90)))
+				aux_contrasena.append(chr(randint(97,122)))
+				aux_contrasena.append(chr(randint(48,57)))
+				aux_contrasena.append(chr(randint(58,64)))
+				for _ in range(randint(6,11)):
+					aux_contrasena.append(chr(randint(48,90)))
+
+				shuffle(aux_contrasena)
+				contrasena_tmp = ''.join(aux_contrasena)
+
+				contrasena = (bcrypt.generate_password_hash(contrasena_tmp.encode('utf-8'))).decode('utf-8')
+
+				bd['entidad_sanitaria'].update_one({
+					'tipo_id':tipo_id,
+					'num_id':num_id
+				},{
+					'$set':{
+						'contrasena':contrasena
+					}
+				})
+
+				enviar_correo(correo_1,
+					"Solicitud de recuperacion de contraseña",
+					mensaje_aprobacion_cambio_contrasena.format(nombre,contrasena_tmp),
+					'')
 		else:
-			enviar_correo(correo_1,
-				"Solicitud de modificacion de cuenta",
-				mensaje_rechazo_mod_comercio.format(nombre),
-				'')
+
+			if entidad[2] == 0:
+				enviar_correo(correo_1,
+					"Solicitud de modificacion de cuenta",
+					mensaje_rechazo_mod_comercio.format(nombre),
+					'')
+
+			else:
+				enviar_correo(correo_1,
+					"Solicitud de recuperacion de contraseña",
+					mensaje_rechazo_cambio_contrasena.format(nombre),
+					'')
 
 		bd['modificacion'].delete_one({'tipo_cuenta':3,'tipo_id':tipo_id,'num_id':num_id})
 
 	entidades = list()
 	for es in bd['modificacion'].find({'tipo_cuenta':3}):
 		aux = list(es.values())
-		if len(aux[8]): aux.append('SI')
+		if len(aux[9]): aux.append('SI')
 		else: aux.append('NO')
-		barrio = bd['barrio'].find_one({'id_barrio':aux[5]})
+		barrio = bd['barrio'].find_one({'id_barrio':aux[6]})
 		aux.append(barrio['municipio'])
 		aux.append(barrio['nombre'])
+		if aux[2]: aux[2] = 'SI'; aux[10] = 'SI'
+		else: aux[2] = 'NO'
 		entidades.append(aux)
 
 	return render_template("admin_gestionarSolicitudes_modificacion_entidadesSanitarias.html",entidades=entidades)

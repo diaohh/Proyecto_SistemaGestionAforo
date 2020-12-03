@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+		<link rel="stylesheet" href="{{url_for('static',filename='css/estilos.css')}}">
+		<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+		<title>Sistema de gestion de accesos y aforo</title>
+	</head>
+	
+	<body style="background-image: url('{{url_for('static',filename='imgs/wall_menu.jpg')}}');" onload="actualizar_telefonos(1);actualizarMuns1();actualizarMuns2();actualizarMuns3();">
+		<header>
+			<div class="row">
+				<div class="col-md-1"></div>
+				<div class="col-md-7">
+					<img src="{{url_for('static',filename='imgs/logo3.png')}}" class="logo">
+				</div>
+				<div class="col-md-4">
+					<nav>
+						<a href="/" class="opciones">Inicio</a>
+						<a href="/objetivo" class="opciones">Objetivo</a>
+						<a href="/contactanos" class="opciones">Contactanos</a>
+					</nav>
+				</div>
+			</div>
+		</header>
+		<h1 class="principal">Formulario para recuperacion de contraseña</h1>
+		<h5 class="sub-principal">Todos los campos son obligatorios*</h5>
+		
+		<div class="row" style="text-align-last: center;">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+			<label style="">Seleccione el tipo de usuario:</label><br>
+			
+			<input type="radio" id="usuario_sel" name="desicion" style="width: 20px; height: 20px;" value="1" required>
+			<label for="usuario_sel">Usuario </label>
+			
+			<input type="radio" id="local_sel" name="desicion" style="width: 20px; height: 20px;" value="2" required>
+			<label for="local_sel">Local comercial</label>
+
+			<input type="radio" id="entidad_sanitaria_sel" name="desicion" style="width: 20px; height: 20px;" value="3" required>
+			<label for="entidad_sanitaria_sel">Entidad de salud</label>
+
+			</div>
+			<div class="col-md-4"></div>
+		</div>
+
+		<form name=formulario_usuario id="form_usuario" action="/recuperar-contrasena/" method="POST" style="display: none;">
+		<div class="row">
+			<input type="hidden" name="tipo_form" value="1">
+			<div class="col-md-3"></div>
+			<div class="col-md-3">
+				<label for="tipo_id1">Tipo de documento</label>
+				<select id="tipo_id1" name="tipo_id" style="width: 40%">
+					<option value="CC">CC</option>
+					<option value="TI">TI</option>
+					<option value="TE">TE</option> <!-- Tarjeta de extranjeria -->
+				</select><br>
+				<input type="text" id="num_id" name="num_id" placeholder="Numero de identificacion" pattern="[0-9]{9,11}" required><br><br>
+				<input type="text" id="nombre1" name="nombres" placeholder="Nombres" required><br><br>
+				<input type="text" id="apellido1" name="apellidos" placeholder="Apellidos" required><br><br>
+
+				<label for="genero1">Genero</label>
+				<select id="genero1" name="genero">
+					<option value="M">Masculino</option>
+					<option value="F">Femenino</option>
+				</select><br><br>
+
+				<label for="nacimiento1">Fecha de nacimiento</label>
+				<input type="date" id="nacimiento1" name="nacimiento" placeholder="Fecha de nacimiento" required><br><br>
+
+				<label for="departamento1">Departamento de residencia</label>
+				<select id="departamento1" name="departamento">
+					{% for departamento in departamentos %}
+						<option value="{{departamento}}">{{departamento}}</option>
+					{% endfor %}
+				</select><br><br>
+
+
+			</div>
+			<div class="col-md-3">
+				<label for="municipio1">Municipio de residencia</label>
+				<select id="municipio1" name="municipio">
+				</select><br><br>
+
+				<label for="barrio1">Barrio de residencia</label>
+				<select id="barrio1" name="barrio" required>
+				</select><br><br>
+
+				<input type="text" id="direccion1" name="direccion" placeholder="Direccion de residencia" required><br><br>
+				
+				<input type="email" id="correo1" name="correo" placeholder="Correo electronico" required><br><br>
+				
+				<input type="text" id="telefono_1" name="telefono" placeholder="Telefono de contacto" pattern="[0-9]{10,10}" required><br>
+				
+				<input type="text" id="usuario1" name="usuario" placeholder="Usuario para inicio de sesion" required><br><br>
+
+				<button>Enviar formulario</button><br><br>
+			</div>
+
+			<div class="col-md-2"></div>
+		</div>
+		</form>
+
+		<form name=formulario_local id="form_local" action="/recuperar-contrasena/" method="POST" style="display: none;">
+		<div class="row">
+			<input type="hidden" name="tipo_form" value="2">
+			<div class="col-md-3"></div>
+			<div class="col-md-3">
+				<label for="tipo_id2">Tipo de documento</label>
+				<select id="tipo_id2" name="tipo_id">
+					<option value="NIT">NIT</option>
+					<option value="RUT">RUT</option>
+				</select><br>
+				<input type="text" id="num_id2" name="num_id" placeholder="Numero de identificacion" pattern="[0-9]{9,11}" required><br><br>
+				<input type="text" id="nombre2" name="nombre" placeholder="Nombre del local" required><br><br>
+
+				<label for="departamento2">Departamento de ubicacion</label>
+				<select id="departamento2" name="departamento">
+					{% for departamento in departamentos %}
+						<option value="{{departamento}}">{{departamento}}</option>
+					{% endfor %}
+				</select><br><br>
+
+				<label for="municipio2">Municipio de ubicacion</label>
+				<select id="municipio2" name="municipio">
+				</select><br><br>
+
+				<label for="barrio2">Barrio de ubicacion</label>
+				<select id="barrio2" name="barrio" required>
+				</select><br><br>
+				<input type="email" id="correo2" name="correo" placeholder="Correo de contacto" required><br><br>
+
+
+			</div>
+			<div class="col-md-3">
+
+				<label for="categoria">Categoria del local</label>
+				<select id="categoria" name="categoria">
+					{% for categoria in categorias %}
+						<option value="{{categoria}}">{{categoria}}</option>
+					{% endfor %}
+				</select><br><br>
+				
+				<label>Telefonos de contacto</label>
+				<select id="telefonos" name="telefonos" onchange="actualizar_telefonos(value);" style="width: 50px">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+				</select><br><br>
+				<input type="tel" id="telefono1" name="telefono1" placeholder="Telefono de contacto #1" required><br><br>
+				<input type="tel" id="telefono2" name="telefono2" placeholder="Telefono de contacto #2"><br><br>
+				<input type="tel" id="telefono3" name="telefono3" placeholder="Telefono de contacto #3"><br>
+				
+				<input type="text" id="usuario2" name="usuario" placeholder="Usuario para inicio de sesion" required><br><br>
+
+				<button>Enviar formulario</button><br><br>
+			</div>
+
+			<div class="col-md-2"></div>
+		</div>
+		</form>
+
+		<form name=formulario_entidad_sanitaria id="form_entidad_sanitaria" action="/recuperar-contrasena/" method="POST" style="display: none;">
+		<div class="row">
+			<input type="hidden" name="tipo_form" value="3">
+			<div class="col-md-3"></div>
+			<div class="col-md-3">
+				<label for="tipo_id">Tipo de documento</label>
+				<select id="tipo_id3" name="tipo_id">
+					<option value="RUT">RUT</option>
+					<option value="NIT">NIT</option>
+				</select><br>
+
+				<input type="text" id="num_id3" name="num_id" placeholder="Numero de identificacion" pattern="[0-9]{9,11}" required><br><br>
+
+				<input type="text" id="nombre3" name="nombre" placeholder="Nombre de la entidad" required><br><br>
+
+				<label for="departamento3">Departamento de ubicacion</label>
+				<select id="departamento3" name="departamento">
+					{% for departamento in departamentos %}
+						<option value="{{departamento}}">{{departamento}}</option>
+					{% endfor %}
+				</select><br><br>
+
+				<label for="municipio3">Municipio de ubicacion</label>
+				<select id="municipio3" name="municipio">
+				</select><br><br>
+
+			</div>
+			<div class="col-md-3">			
+				<label for="barrio3">Barrio de ubicacion</label>
+				<select id="barrio3" name="barrio" required>
+				</select><br><br>
+				
+				<input type="email" id="correo3" name="correo" placeholder="Correo de contacto" required><br><br>
+
+				<input type="tel" id="telefono_3" name="telefono" placeholder="Telefono de contacto" required><br>
+
+				<label id="label_usuario"></label>
+				<input type="text" id="usuario3" name="usuario" placeholder="Usuario para inicio de sesion"><br><br>
+
+				<button id="terminar">Enviar formulario</button><br><br>
+			</div>
+
+			<div class="col-md-2"></div>
+		</div>
+		</form>
+
+		<div class="row" style="text-align-last: center;">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+			<br><button type="button" onclick="window.location.href='/inicio-sesion/'" style="align-items: center">Cancelar</button><br><br>
+			</div>
+			<div class="col-md-4"></div>
+		</div>
+
+	<script language="JavaScript" src="{{url_for('static',filename='js/script_recuperacion_contrasena.js')}}"></script>
+	{% with mensajes = get_flashed_messages() %}
+		{% if mensajes %}
+			{% for m in mensajes %}
+				{% if m == 'no_usuario_id' %}
+					<div id="popup_registro" class="bloquear">
+						<div class="contenido">
+							<h3><b>Solicitud de recuperacion de contraseña fallida</b></h3><br>
+							<p>
+							Error: el tipo y numero de documento ni el usuario
+							ingresado consisten con los registrados en la base
+							de datos, porfavor intentelo nuevamente.
+							</p>
+							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Aceptar</button>
+						</div>
+					</div>
+				{% elif m == 'pendiente' %}
+					<div id="popup_registro" class="bloquear">
+						<div class="contenido">
+							<h3><b>Solicitud de recuperacion de contraseña fallida</b></h3><br>
+							<p>
+							Error: ya existe una solicitud de modificacion previa pendiente, debe esperar a una respuesta por parte de los administradores, de lo contrario puede comunicarse a nuestras lineas de atencion en la pestaña "contactanos".
+							</p>
+							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Aceptar</button>
+						</div>
+					</div>
+				{% endif %}
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+	</body>
+</html>

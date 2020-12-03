@@ -34,7 +34,9 @@
 				<input type="text" id="usuario" name="usuario" placeholder="Nombre de usuario" style="width: 20%;"><br><br>
 				<input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" style="width: 20%;"><br><br>
 				<button>Iniciar sesion</button><br><br>
-				<button type="button" onclick="window.location.href='/'">Cancelar</button>
+				<button type="button" onclick="window.location.href='/'">Cancelar</button><br><br>
+				<label>¿Perdiste la contraseña? diligencia nuestro</label>
+				<br><a href="/recuperar-contrasena/">formulario de recuperacion de contraseña!</a>
 			</form>
 		</div>
 
@@ -63,6 +65,21 @@
 							Cuenta pendiente de aprobacion por administradores.
 							</p>
 							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Aceptar</button>
+						</div>
+					</div>
+				{% elif m == 'correcto' %}
+					<div id="popup_registro" class="bloquear">
+						<div class="contenido">
+							<h3><b>Solicitud de recuperacion exitosa!</b></h3><br>
+							<p>
+							Se ha enviado la solicitud de recuperacion
+							de contraseña exitosamente, la desicion tomada
+							por los administradores sera notificada
+							por medio de correo electronico, no se pueden
+							enviar mas solicitudes hasta una respuesta
+							a la actual.
+							</p>
+							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Finalizar</button>
 						</div>
 					</div>
 				{% endif %}

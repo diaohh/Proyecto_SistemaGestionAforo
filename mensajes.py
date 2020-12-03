@@ -105,3 +105,24 @@ debido a una inconsistencia en los datos, si este problema persiste, comuniquese
 
 Muchas gracias por su comprension.
 """
+
+mensaje_aprobacion_cambio_contrasena = """
+Hola, {}!
+
+Se ha aprobado la solicitud de recuperacion de contraseña, a continuacion se encuentra la nueva contraseña generada para inicio de sesion
+
+Contraseña: {}
+
+Se recomienda cambiarla al iniciar sesion por motivos de seguridad
+
+Muchas gracias por usar el portal!
+"""
+
+mensaje_rechazo_cambio_contrasena = """
+Hola, {}
+
+Se ha rechazado la solicitud de cambio de contraseña, debido a incongruencias en los datos o no aprobar la etapa de verificacion por medio de llamada o correo electronico
+si sigue presentando problemas, comuniquese con nuestro servicio de atencion al cliente en el apartado de "Contactanos" en el menu principal, esquina superior derecha.
+
+Muchas gracias por su comprension.
+"""

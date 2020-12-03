@@ -34,6 +34,7 @@
 				<div style="height: 620px ;overflow: auto;">
 					<table id="users_data" cellspacing="0" cellpadding="1" border="1">
 						<tr>
+							<th>Recuperacion de contraseña</th>
 							<th>Tipo de identificacion</th>
 							<th>Numero de identificacion</th>
 							<th>Nombre de entidad</th>
@@ -48,18 +49,19 @@
 						{% for entidad in entidades %}
 							<tr>
 								<form action="/gestionar-solicitudes/modificacion/entidad-sanitaria" method="POST">
-								<input type="hidden" name="tipo_id" value="{{entidad[2]}}">
-								<input type="hidden" name="num_id" value="{{entidad[3]}}">
-								<input type="hidden" name="correo" value="{{entidad[6]}}">
-								<input type="hidden" name="nombre" value="{{entidad[4]}}">
-								<td>{{entidad[2]}}</td>
+								<input type="hidden" name="tipo_id" value="{{entidad[3]}}">
+								<input type="hidden" name="num_id" value="{{entidad[4]}}">
+								<input type="hidden" name="correo" value="{{entidad[7]}}">
+								<input type="hidden" name="nombre" value="{{entidad[5]}}">
+								<td><b>{{entidad[2]}}</b></td>
 								<td>{{entidad[3]}}</td>
 								<td>{{entidad[4]}}</td>
-								<td>{{entidad[10]}}</td>
+								<td>{{entidad[5]}}</td>
 								<td>{{entidad[11]}}</td>
-								<td>{{entidad[6]}}</td>
+								<td>{{entidad[12]}}</td>
 								<td>{{entidad[7]}}</td>
-								<td>{{entidad[9]}}</td>
+								<td>{{entidad[8]}}</td>
+								<td>{{entidad[10]}}</td>
 								<td><button type="submit" name="aceptar">Aceptar</button></td>
 								<td><button type="submit" name="rechazar">Rechazar</button></td>
 							</tr>
