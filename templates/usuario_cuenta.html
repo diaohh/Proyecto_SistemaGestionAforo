@@ -96,7 +96,7 @@
 				<input type="checkbox" name="cambiar_contrasena" id="cambiar_contrasena" style="vertical-align: middle; width: 25px">
 				<label for="cambiar_contrasena" style="vertical-align: middle;">Cambiar contraseña?</label>
 				
-				<div class="row" id="div_contrasena">
+				<div class="row">
 				<div class="col-md-6">
 				<input type="password" id="contrasena" name="contrasena" placeholder="Nueva contraseña" disabled="true" required><br><br>
 				<label id="contrasena2_l"></label>
@@ -136,7 +136,7 @@
 							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Finalizar</button>
 						</div>
 					</div>
-				{% if m == 'no_solicitud' %}
+				{% elif m == 'no_solicitud' %}
 					<div id="popup_registro" class="bloquear">
 						<div class="contenido">
 							<h3><b>Error: solicitud de modificacion!</b></h3><br>

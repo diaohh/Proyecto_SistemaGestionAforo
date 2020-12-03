@@ -199,6 +199,7 @@ def mi_cuenta():
 				else:
 					id_barrio = bd['barrio'].find_one({'nombre':request.form['barrio'],'municipio':request.form['municipio']})['id_barrio']
 					bd['modificacion'].insert_one({
+						'tipo_cuenta':1,
 						'tipo_id':session['tipo_id'],
 						'num_id': session['num_id'],
 						'nombres':request.form['nombres'],
@@ -233,8 +234,58 @@ def mi_cuenta():
 		return render_template('usuario_cuenta.html',usuario=usuario,barrio=barrio,departamentos=departamentos)
 
 	
-	elif session['tipo'] == 2: 
-		pass
+	elif session['tipo'] == 2:
+		if request.method == 'POST':
+			contrasena_usuario = bd['comercio'].find_one({'tipo_id':session['tipo_id'],'num_id':session['num_id']})['contrasena']
+			contrasena_actual = request.form['contrasena_act']
+			if bcrypt.check_password_hash(contrasena_usuario.encode('utf-8'),contrasena_actual.encode('utf-8')):
+				if bd['modificacion'].find_one({'tipo_id':session['tipo_id'],'num_id':session['num_id']}):
+					flash('no_solicitud')
+				else:
+					id_barrio = bd['barrio'].find_one({'nombre':request.form['barrio'],'municipio':request.form['municipio']})['id_barrio']
+					bd['modificacion'].insert_one({
+						'tipo_cuenta':2,
+						'tipo_id': session['tipo_id']
+						'num_id': session['num_id'],
+						'nombre':request.form['nombre'],
+						'id_barrio':request.form['id_barrio'],
+						'correo':request.form['correo'],
+						'categoria':request.form['categoria'],
+						'telefono1':request.form['telefono1'],
+						'telefono2':request.form['telefono2'],
+						'telefono3':request.form['telefono3'],
+						'contrasena_nueva':request.form['contrasena']
+					})
+					flash('correcto')
+
+			else:
+				flash('no_contrasena')
+
+		local = list(bd['comercio'].find_one({
+			'tipo_id':session['tipo_id'],
+			'num_id':session['num_id']
+		}).values())
+
+		barrio = list(bd['barrio'].find_one({
+			'id_barrio':local[6]
+		}).values())
+
+		telefonos = 1
+		if str(local[10]) != 'nan': telefonos = 2
+		if str(local[11]) != 'nan': telefonos = 3
+		local.append(telefonos)
+
+		departamentos = list()
+		dep = bd['departamento'].find({})
+		for u in dep:
+			departamentos.append(u['nombre'])
+
+		categorias = list()
+		cat = bd['categoria'].find({})
+		for u in cat:
+			categorias.append(u['nombre'])
+
+		return render_template('local_cuenta.html',local=local,barrio=barrio,departamentos=departamentos,categorias=categorias)
 	
 	elif session['tipo'] == 3: 
 		pass

@@ -3,96 +3,193 @@
 	<head>
 		<meta charset="UTF-8">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-		<link rel="stylesheet" href="static/css/estilos.css">
+		<link rel="stylesheet" href="{{url_for('static',filename='css/estilos.css')}}">
 		<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 
 		<title>Sistema de gestion de accesos y aforo</title>
 
 		<script language="JavaScript">
-		function enable_phone(selection){
+		function actualizar_telefonos(selection){
 			
 			if(selection=='1'){
-				document.register_form.phone2.disabled = true;
-				document.register_form.phone3.disabled = true;
-				document.getElementById("phone2").value = ''; 
-				document.getElementById("phone3").value = ''; 
+				document.formulario_registro.telefono2.disabled = true;
+				document.formulario_registro.telefono3.disabled = true;
+				document.getElementById("telefono2").value = ''; 
+				document.getElementById("telefono3").value = ''; 
 			}
 			else if(selection=='2'){
-				document.register_form.phone2.disabled = false;
-				document.register_form.phone3.disabled = true;
-				document.getElementById("phone3").value = ''; 
+				document.formulario_registro.telefono2.disabled = false;
+				document.formulario_registro.telefono3.disabled = true;
+				document.getElementById("telefono3").value = ''; 
 			}
 			else if(selection=='3'){
-				document.register_form.phone2.disabled = false;
-				document.register_form.phone3.disabled = false;
+				document.formulario_registro.telefono2.disabled = false;
+				document.formulario_registro.telefono3.disabled = false;
 			}
-		}
-		function cancel_but(){
-			document.location.href = "local.html";
 		}
 		</script>
 	</head>
-	<body onload="enable_phone(1); background-image: url('static/imgs/wall_menu.jpg');">
+	<body style="background-image: url('{{url_for('static',filename='imgs/wall_menu.jpg')}}');" onload="actualizar_telefonos({{local[13]}}); actualizarMuns();">
 		<header>
 			<div class="row">
 				<div class="col-md-1"></div>
 				<div class="col-md-7">
-					<img src="imgs/logo3.png" class="logo">
+					<img src="{{url_for('static',filename='imgs/logo3.png')}}" class="logo">
 				</div>
-				<div class="col-md-2"></div>
-				<div class="col-md-2">
+				<div class="col-md-4">
 					<nav>
-						<a href="./local_cuenta.html" class="opciones">Mi cuenta</a>
-						<a href="./index.html" class="opciones">Cerrar sesion</a>
+						<a href="/mi-cuenta/" class="opciones">Mi cuenta</a>
+						<a href="/cerrar-sesion/" class="opciones">Cerrar sesion</a>
 					</nav>
 				</div>
 			</div>
 		</header>
-		<h1 class="principal">Cuenta</h1>
+		<h1 class="principal">Registro de local</h1>
+		<h5 class="sub-principal">Todos los campos son obligatorios*</h5>
 		
-		<form name=register_form>
+		<form name=formulario_registro action="/registro-local/" method="POST">
 		<div class="row">
-			<div class="col-md-4"></div>
-			<div class="col-md-2">
-				<select id="id_type" name="id_type">
-					<option value="NIT">NIT</option>
-					<option value="RUT">RUT</option>
-				</select><br><br>
-				<input type="text" id="id_num" name="id_num" placeholder="Numero de identificacion"><br><br>
-				<input type="text" id="name" name="name" placeholder="Nombre del local"><br><br>
-				<select id="sector" name="sector">
+			<div class="col-md-3"></div>
+			<div class="col-md-3">
+				<label for="tipo_id">Tipo de documento</label>
+				<input type="text" id="num_id" name="num_id" placeholder="Numero de identificacion" value="{{local[1]}}" disabled required><br><br>
+
+				<label id="label_num_doc">Numero de documento</label>
+				<input type="text" id="num_id" name="num_id" placeholder="Numero de identificacion" value="{{local[2]}}" disabled required><br><br>
+
+				<input type="text" id="nombre" name="nombre" placeholder="Nombre del local" value="{{local[5]}}" required><br><br>
+
+				<label for="departamento">Departamento de ubicacion</label>
+				<select id="departamento" name="departamento">
+					{% for departamento in departamentos %}
+						{% if departamento == barrio[4] %}
+						<option value="{{departamento}}" selected>{{departamento}}</option>
+						{% else %}
+						<option value="{{departamento}}">{{departamento}}</option>
+						{% endif %}
+						}
+					{% endfor %}
 				</select><br><br>
 
-				<select id="town" name="town">
+				<label for="municipio">Municipio de ubicacion</label>
+				<select id="municipio" name="municipio">
+					<option value="{{barrio[3]}}" id="mun_seleccionado" selected>{{barrio[3]}}</option>
 				</select><br><br>
 
-				<input type="text" id="neighbor" name="neighbor" placeholder="Barrio"><br><br>
-				<input type="email" id="mail" name="mail" placeholder="Correo de contacto"><br><br>
-				<select id="category" name="category">
+				<label for="barrio">Barrio de ubicacion</label>
+				<select id="barrio" name="barrio" required>
+					<option value="{{barrio[2]}}" id="barrio_seleccionado" selected>{{barrio[2]}}</option>
+				</select><br><br>
+
+				<input type="email" id="correo" name="correo" placeholder="Correo de contacto" value="{{local[7]}}" required><br><br>
+
+				<label for="categoria">Categoria del local</label>
+				<select id="categoria" name="categoria">
+					{% for categoria in categorias %}
+						{% if categoria == local[8] %}
+						<option value="{{categoria}}" selected>{{categoria}}</option>
+						{% else %}
+						<option value="{{categoria}}">{{categoria}}</option>
+						{% endif %}
+					{% endfor %}
 				</select><br><br>
 
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<label>Telefonos de contacto</label>
-				<select id="phones" name="phones" onchange="enable_phone(value);" style="width: 50px">
+				<select id="telefonos" name="telefonos" onchange="actualizar_telefonos(value);" style="width: 50px">
+					{% if local[13] == 1 %}
+					<option value="1" selected>1</option>
+					{% else %}
 					<option value="1">1</option>
-					<option value="2">2</option>
+					{% endif %}
+					{% if local[13] == 2 %}
+					<option value="2" selected>2</option>
+					{% else %}
+					<option value="2">2</option>{% endif %}
+					{% if local[13] == 3 %}
+					<option value="3" selected>3</option>
+					{% else %}
 					<option value="3">3</option>
+					{% endif %}
 				</select><br><br>
-				<input type="tel" id="phone1" name="phone1" placeholder="Telefono de contacto #1"><br><br>
-				<input type="tel" id="phone2" name="phone2" placeholder="Telefono de contacto #2"><br><br>
-				<input type="tel" id="phone3" name="phone3" placeholder="Telefono de contacto #3"><br><br>
-				
-				<input type="password" id="pass_local" name="pass_local" placeholder="Contraseña"><br><br>
-				<input type="password" id="pass_local_aux" name="pass_local_aux" placeholder="Confirmar contraseña"><br><br>
 
-				<button>Enviar solicitud de cambio de datos</button><br><br>
-				<button type="button" onclick="cancel_but();">Cancelar</button>
+				<input type="tel" id="telefono1" name="telefono1" placeholder="Telefono de contacto #1" value="{{local[9]}}" required><br><br>
+				{% if local[13] > 1 %}
+				<input type="tel" id="telefono2" name="telefono2" placeholder="Telefono de contacto #2" value="{{local[10]}}"><br><br>
+				{% else %}
+				<input type="tel" id="telefono2" name="telefono2" placeholder="Telefono de contacto #2"><br><br>
+				{% endif %}
+				{% if local[13] > 2 %}
+				<input type="tel" id="telefono3" name="telefono3" placeholder="Telefono de contacto #3" value="{{local[11]}}"><br>
+				{% else %}
+				<input type="tel" id="telefono3" name="telefono3" placeholder="Telefono de contacto #3"><br>
+				{% endif %}
+				
+				<label id="label_usuario"></label>
+				<input type="text" id="usuario" name="usuario" placeholder="Usuario para inicio de sesion" value="{{local[3]}}" disabled required><br><br>
+
+				<input type="password" id="contrasena_act" name="contrasena_act" placeholder="Contraseña actual" required><br><br>
+
+				<input type="checkbox" name="cambiar_contrasena" id="cambiar_contrasena" style="vertical-align: middle; width: 25px">
+				<label for="cambiar_contrasena" style="vertical-align: middle;">Cambiar contraseña?</label>
+
+				<div class="row">
+				<div class="col-md-6">
+				<input type="password" id="contrasena" name="contrasena" placeholder="Nuevo contraseña" disabled required><br><br>
+				<label id="contrasena2_l"></label>
+				<input type="password" id="contrasena2" name="contrasena2" placeholder="Confirmar nueva contraseña" disabled required><br><br>
+				</div>
+				<div class="col-md-6">
+					<label>La contraseña debe tener almenos</label><br><br>
+					<label>1 numero</label><label id="numero"></label><br>
+					<label>1 letra</label><label id="letra"></label><br>
+					<label>1 caracter especial (-_!=+?¿!¡)</label><label id="caracter"></label><br>
+					<label>10 caracteres (minimo)</label><label id="longitud"></label></div>
+				</div>
+
+				<button id="terminar" disabled="true">Completar registro</button><br><br>
+				<button type="button" onclick="window.location.href='/'">Cancelar</button><br><br>
 			</div>
 
 			<div class="col-md-2"></div>
 		</div>
 		</form>
 
+	<script language="JavaScript" src="{{url_for('static',filename='js/script_mi_cuenta.js')}}"></script>
+	{% with mensajes = get_flashed_messages() %}
+		{% if mensajes %}
+			{% for m in mensajes %}
+				{% if m == 'no_contrasena' %}
+					<div id="popup_registro" class="bloquear">
+						<div class="contenido">
+							<h3><b>Error: solicitud de modificacion!</b></h3><br>
+							<p>
+							Se ha producido un error al enviar la
+							solicitud de modificacion, la contraseña
+							no coincide con la contraseña asociada
+							al usuario, intente nuevamente.
+							</p>
+							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Finalizar</button>
+						</div>
+					</div>
+				{% elif m == 'no_solicitud' %}
+					<div id="popup_registro" class="bloquear">
+						<div class="contenido">
+							<h3><b>Error: solicitud de modificacion!</b></h3><br>
+							<p>
+							Se ha producido un error al enviar la
+							solicitud de modificacion, ya existe una
+							solicitud pendiente registrada, será
+							notificado por medio de correo electronico
+							sobre la desicion de esta.
+							</p>
+							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Finalizar</button>
+						</div>
+					</div>
+				{% endif %}
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
 	</body>
 </html>
