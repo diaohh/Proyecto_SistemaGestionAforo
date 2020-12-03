@@ -74,6 +74,23 @@ def index():
 	if "tipo" in session:
 		
 		if session["tipo"] == 1:
+
+			prueba = list()
+			for p in bd['historial_pruebas'].find({'tipo_id_persona':session['tipo_id'],'num_id_persona':session['num_id']}):  
+				prueba.append((datetime.strptime(p['fechayhora'], '%Y-%m-%d %H:%M:%S'),p['resultado']))
+
+			fecha = None
+			dias = 0
+			vigente = 0
+			if len(prueba):
+				prueba = max(prueba, key=lambda x: x[0])
+				#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
+				fecha = prueba[0]
+				fechaMin = datetime.today() - timedelta(days=15)
+				if prueba[1]=='Positivo' and fecha >= fechaMin: vigente = 1
+				if prueba[1]=='Ninguno' and fecha >= fechaMin: vigente = 2
+				dias = (fecha - fechaMin).days
+
 			visitas_aux = bd['visita']
 			visitas_aux = visitas_aux.find({"ingreso":"SI","tipo_id_persona":session['tipo_id'], "num_id_persona":session['num_id']})
 			visitas = list()
@@ -81,7 +98,8 @@ def index():
 				comercio = bd['comercio'].find({"tipo_id":visita['tipo_id_local'], "num_id":visita['num_id_local']})
 				visitas.append((comercio[0]['nombre'],visita['fechayhora']))
 
-			return render_template("usuario.html", visitas=visitas)
+			fecha = str(fecha)
+			return render_template("usuario.html", visitas=visitas,vigente=vigente,dias=dias,fecha=fecha)
 		
 		if session["tipo"] == 2:
 			visitas = list()
@@ -759,10 +777,10 @@ def local_QR():
 
 		permitido = 1
 		if len(prueba):
-			prueba = min(prueba, key=lambda x: x[0])
+			prueba = max(prueba, key=lambda x: x[0])
 			#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
 			fecha = prueba[0]
-			fechaMin = date.today() - timedelta(days=15)
+			fechaMin = datetime.today() - timedelta(days=15)
 			if prueba[1]!='Negativo' and fecha >= fechaMin: permitido = 0
 
 		tapabocas = 'SI'
@@ -1608,4 +1626,4 @@ def gestionar_solicitudes_modificacion_entidad_sanitaria():
 
 if __name__ == "__main__":
 	app.secret_key = "jda()/_s8U9??¡!823jeD" 
-	app.run(host='0.0.0.0',port='8080',debug=True)	
+	app.run(host='0.0.0.0',port='8080',debug=True)

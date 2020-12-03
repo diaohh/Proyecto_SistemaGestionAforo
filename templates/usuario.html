@@ -29,7 +29,7 @@
 		
 		<div class="row">
 			<div class="col-md-1"></div>
-			<div class="col-md-10">
+			<div class="col-md-7">
 				<div style="height: 620px ;overflow: auto;">
 					<table id="users_data" cellspacing="0" cellpadding="1" border="1">
 						<tr>
@@ -45,7 +45,30 @@
 					</table>
 				</div>
 			</div>
-			
+			<div class="col-md-1"><div style="width: 5px; background-color: #164545; height: 650px;"></div></div>
+			<div class="col-md-2" style="text-align: center;">
+				<form id="covid_test">
+					{% if vigente == 0 %}
+					<br><h5>NO se ha reportado ninguna prueba de COVID-19 en curso</h5><br>
+					{% elif vigente == 1 %}
+					<br><h5>Se ha reportado una prueba positiva de COVID-19 en la <b>fecha y hora: {{fecha}}</b>, se recomienda seguir los protocolos de bioseguridad y cumplir con la <b>cuarentena obligatoria</b></h5><br>
+					{% elif vigente == 2 %}
+					<br><h5>Se ha reportado una prueba de COVID-19 en curso<br><b>Fecha y hora de la prueba: {{fecha}}</b></h5><br>
+					{% endif %}
+				</form>
+				<br><br><hr style="height: 5px; background-color: #164545;"><br><br>
+
+				<form id="result">
+					{% if vigente == 0 %}
+					<h5>NO se ha reportado ningun periodo de cuarentena obligatoria a su nombre</h5><br>
+					{% elif vigente == 1 %}
+					<h5>Señor usuario, debe cumplir con un periodo de <b>cuarentena obligatoria</b> de <b>{{dias}} dias restantes</b></h5><br>
+					{% elif vigente == 2 %}
+					<h5>Señor usuario, debe cumplir con un periodo de cuarentena preventiva de <b>{{dias}} dias restantes</b></h5><br>
+					{% endif %}
+				</form>
+
+			</div>
 			<div class="col-md-1"></div>
 		</div>
 
