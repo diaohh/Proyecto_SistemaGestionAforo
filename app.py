@@ -531,7 +531,7 @@ def local_no_QR():
 			prueba = max(prueba, key=lambda x: x[0])
 			#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
 			fecha = prueba[0]
-			fechaMin = date.today() - timedelta(days=15)
+			fechaMin = datetime.today() - timedelta(days=15)
 			if prueba[1]!='Negativo' and fecha >= fechaMin: permitido = 0
 
 		tapabocas = 'SI'
