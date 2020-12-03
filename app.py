@@ -198,14 +198,12 @@ def mi_cuenta():
 		barrio = list(bd['barrio'].find_one({
 			'id_barrio':usuario[9]
 		}).values())
-		print(barrio)
 
 		departamentos = list()
 		dep = bd['departamento'].find({})
 		for u in dep:
 			departamentos.append(u['nombre'])
 
-		print(barrio[3])
 		return render_template('usuario_cuenta.html',usuario=usuario,barrio=barrio,departamentos=departamentos)
 
 	
@@ -526,7 +524,7 @@ def local_no_QR():
 
 		prueba = list()
 		for p in bd['historial_pruebas'].find({'tipo_id_persona':tipo_id,'num_id_persona':num_id}):  
-			prueba.append((datetime.strptime(p['fecha'], '%Y-%m-%d %H:%M:%S'),p['resultado']))
+			prueba.append((datetime.strptime(p['fechayhora'], '%Y-%m-%d %H:%M:%S'),p['resultado']))
 
 		permitido = 1
 		if len(prueba):

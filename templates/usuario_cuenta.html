@@ -9,7 +9,7 @@
 		<title>Sistema de gestion de accesos y aforo</title>
 	</head>
 	
-	<body style="background-image: url('{{url_for('static',filename='imgs/wall_menu.jpg')}}');" onload="actualizarMuns_2();">
+	<body style="background-image: url('{{url_for('static',filename='imgs/wall_menu.jpg')}}');" onload="actualizarMuns();">
 		<header>
 			<div class="row">
 				<div class="col-md-1"></div>
@@ -91,7 +91,12 @@
 				<label id="label_usuario"></label>
 				<input type="text" id="usuario" name="usuario" placeholder="Usuario para inicio de sesion" value="{{usuario[3]}}" disabled><br><br>
 
-				<div class="row">
+				<input type="password" id="contrasena_act" name="contrasena_act" placeholder="Contraseña actual" required><br><br>
+
+				<input type="checkbox" name="cambiar_contrasena" id="cambiar_contrasena" style="vertical-align: middle; width: 25px">
+				<label for="cambiar_contrasena" style="vertical-align: middle;">Cambiar contraseña?</label>
+				
+				<div class="row" id="div_contrasena" >
 				<div class="col-md-6">
 				<input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required><br><br>
 				<label id="contrasena2_l"></label>
@@ -113,46 +118,6 @@
 		</div>
 		</form>
 
-	<script language="JavaScript" src="{{url_for('static',filename='js/script_registros.js')}}"></script>
-	<script type="text/javascript">
-		var departamento = document.getElementById("departamento");
-		var municipio = document.getElementById("municipio");
-		var mun = document.getElementById("mun_seleccionado").value;
-		function actualizarMuns_2(){
-			dep = departamento.value;
-			fetch('/muns/'+dep).then(function(aux){
-				aux.json().then(function(muns){
-					let auxHTML = '';
-					for(let m of muns.municipios){
-						if(m == mun){
-							auxHTML += '<option value="'+ m +'" selected>'+ m +'</option>';
-						}else{
-							auxHTML += '<option value="'+ m +'">'+ m +'</option>';
-						}
-					}
-					municipio.innerHTML = auxHTML;
-				})
-			});
-		}
-
-		var barrio = document.getElementById("barrio");
-		var bar = document.getElementById("barrio_seleccionado").value;
-		function actualizarBarrios(){
-			mun = municipio.value;
-			fetch('/barrios/'+mun).then(function(aux){
-				aux.json().then(function(bars){
-					let auxHTML = '';
-					for(let b of bars.barrios){
-						if(b == bar){
-							auxHTML += '<option value="'+ b +'" selected>'+ b +'</option>';
-						}else{
-							auxHTML += '<option value="'+ b +'">'+ b +'</option>';
-						}
-					}
-					barrio.innerHTML = auxHTML;
-				})
-			});
-		}
-	</script>
+	<script language="JavaScript" src="{{url_for('static',filename='js/script_mi_cuenta.js')}}"></script>
 	</body>
 </html>

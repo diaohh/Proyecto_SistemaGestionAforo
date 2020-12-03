@@ -8,8 +8,6 @@ var boton = document.getElementById("terminar");
 var contrasena2_l = document.getElementById("contrasena2_l");
 var esvalido_contrasena = false;
 var esvalido_contrasena2 = false;
-var esvalido_documento = false;
-var esvalido_usuario = false;
 
 var tmp1 = window.location.href.split('/');
 var url = tmp1[tmp1.length-2];
@@ -114,3 +112,18 @@ function actualizarBarrios(){
 	});
 }
 municipio.onchange = function(){ actualizarBarrios(); }
+
+var cambiar_contrasena = document.getElementById("cambiar_contrasena");
+var div_contrasena = document.getElementById("div_contrasena");
+var bandera = true;
+console.log(div_contrasena);
+cambiar_contrasena.onchange = function(){
+	if(bandera){
+		console.log('XD');
+		div_contrasena.style.visibility = "visible";
+		bandera = false;
+	}else{
+		div_contrasena.style.visibility = "none";
+		bandera = true;
+	}
+}
