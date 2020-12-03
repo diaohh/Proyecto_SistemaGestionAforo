@@ -198,6 +198,7 @@ def mi_cuenta():
 					flash('no_solicitud')
 				else:
 					id_barrio = bd['barrio'].find_one({'nombre':request.form['barrio'],'municipio':request.form['municipio']})['id_barrio']
+					contrasena = "" if 'contrasena' not in request.form else request.form['contrasena']
 					bd['modificacion'].insert_one({
 						'tipo_cuenta':1,
 						'tipo_id':session['tipo_id'],
@@ -210,7 +211,7 @@ def mi_cuenta():
 						'direccion':request.form['direccion'],
 						'correo':request.form['correo'],
 						'telefono':request.form['telefono'],
-						'contrasena_nueva':request.form['contrasena']
+						'contrasena_nueva':contrasena
 					})
 					flash('correcto')
 
@@ -243,6 +244,7 @@ def mi_cuenta():
 					flash('no_solicitud')
 				else:
 					id_barrio = bd['barrio'].find_one({'nombre':request.form['barrio'],'municipio':request.form['municipio']})['id_barrio']
+					contrasena = "" if 'contrasena' not in request.form else request.form['contrasena']
 					bd['modificacion'].insert_one({
 						'tipo_cuenta':2,
 						'tipo_id': session['tipo_id'],
@@ -254,7 +256,7 @@ def mi_cuenta():
 						'telefono1':request.form['telefono1'],
 						'telefono2':request.form['telefono2'],
 						'telefono3':request.form['telefono3'],
-						'contrasena_nueva':request.form['contrasena']
+						'contrasena_nueva':contrasena
 					})
 					flash('correcto')
 
