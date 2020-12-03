@@ -245,7 +245,7 @@ def mi_cuenta():
 					id_barrio = bd['barrio'].find_one({'nombre':request.form['barrio'],'municipio':request.form['municipio']})['id_barrio']
 					bd['modificacion'].insert_one({
 						'tipo_cuenta':2,
-						'tipo_id': session['tipo_id']
+						'tipo_id': session['tipo_id'],
 						'num_id': session['num_id'],
 						'nombre':request.form['nombre'],
 						'id_barrio':request.form['id_barrio'],
