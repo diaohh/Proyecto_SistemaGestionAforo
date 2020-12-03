@@ -118,6 +118,7 @@ cambiar_contrasena.onchange = function(){
 	if(contrasena.disabled){
 		contrasena.disabled = false;
 		contrasena2.disabled = false;
+		boton.disabled = true;
 	}else{
 		contrasena.disabled = true;
 		contrasena2.disabled = true;
@@ -128,5 +129,6 @@ cambiar_contrasena.onchange = function(){
 		caracter.innerHTML = "";
 		longitud.innerHTML = "";
 		contrasena2_l.innerHTML = "";
+		boton.disabled = false;
 	}
 }
