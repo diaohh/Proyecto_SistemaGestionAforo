@@ -49,7 +49,7 @@
 			<div class="col-md-2" style="text-align: center;">
 				<form id="covid_test">
 					{% if vigente == 0 %}
-					<br><h5>NO se ha reportado ninguna prueba de COVID-19 en curso</h5><br>
+					<br><h5><b>NO</b> se ha reportado ninguna prueba de COVID-19 en curso o con resultado positivo</h5><br>
 					{% elif vigente == 1 %}
 					<br><h5>Se ha reportado una prueba positiva de COVID-19 en la <b>fecha y hora: {{fecha}}</b>, se recomienda seguir los protocolos de bioseguridad y cumplir con la <b>cuarentena obligatoria</b></h5><br>
 					{% elif vigente == 2 %}
