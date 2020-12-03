@@ -54,3 +54,54 @@ debido a incosistencia en los datos, si este problema persiste, comuniquese con 
 
 Muchas gracias por su comprension.
 """
+
+mensaje_aprobacion_mod_civil = """
+Hola, {}!
+
+Se ha aprobado la solicitud de modificacion de datos en su cuenta del sistema de gestion de aforo por COVID-19
+
+Muchas gracias por usar el portal!.
+"""
+
+mensaje_rechazo_mod_civil = """
+Hola, {}!
+
+Lamentamos decirle que se ha rechazado la solicitud de modificacion de datos en su cuenta del sistema de gestion de aforo por COVID-19
+debido a una inconsistencia en los datos, si este problema persiste, comuniquese con nuestro servicio de atencion al cliente en el apartado de "Contactanos" en el menu principal, esquina superior derecha.
+
+Muchas gracias por su comprension.
+"""
+
+mensaje_aprobacion_mod_comercio = """
+Estimado, Local {}!
+
+Se ha aprobado la solicitud de modificacion de datos en su cuenta del sistema de gestion de aforo por COVID-19
+
+Muchas gracias por usar el portal!.
+"""
+
+mensaje_rechazo_mod_comercio = """
+Estimado, Local {}!
+
+Lamentamos decirle que se ha rechazado la solicitud de modificacion de datos en su cuenta del sistema de gestion de aforo por COVID-19
+debido a una inconsistencia en los datos, si este problema persiste, comuniquese con nuestro servicio de atencion al cliente en el apartado de "Contactanos" en el menu principal, esquina superior derecha.
+
+Muchas gracias por su comprension.
+"""
+
+mensaje_aprobacion_mod_entidad_sanitaria = """
+Estimada, Entidad {}!
+
+Se ha aprobado la solicitud de modificacion de datos en su cuenta del sistema de gestion de aforo por COVID-19
+
+Muchas gracias por usar el portal!.
+"""
+
+mensaje_rechazo_mod_entidad_sanitaria = """
+Estimada, Entidad {}!
+
+Lamentamos decirle que se ha rechazado la solicitud de modificacion de datos en su cuenta del sistema de gestion de aforo por COVID-19
+debido a una inconsistencia en los datos, si este problema persiste, comuniquese con nuestro servicio de atencion al cliente en el apartado de "Contactanos" en el menu principal, esquina superior derecha.
+
+Muchas gracias por su comprension.
+"""

@@ -194,11 +194,11 @@ def mi_cuenta():
 			contrasena_usuario = bd['civil'].find_one({'tipo_id':session['tipo_id'],'num_id':session['num_id']})['contrasena']
 			contrasena_actual = request.form['contrasena_act']
 			if bcrypt.check_password_hash(contrasena_usuario.encode('utf-8'),contrasena_actual.encode('utf-8')):
-				if bd['modificacion'].find_one({'tipo_id':session['tipo_id'],'num_id':session['num_id']}):
+				if bd['modificacion'].find_one({'tipo_cuenta':1,'tipo_id':session['tipo_id'],'num_id':session['num_id']}):
 					flash('no_solicitud')
 				else:
 					id_barrio = bd['barrio'].find_one({'nombre':request.form['barrio'],'municipio':request.form['municipio']})['id_barrio']
-					contrasena = "" if 'contrasena' not in request.form else request.form['contrasena']
+					contrasena = "" if 'contrasena' not in request.form else (bcrypt.generate_password_hash(request.form['contrasena'].encode('utf-8'))).decode('utf-8')
 					bd['modificacion'].insert_one({
 						'tipo_cuenta':1,
 						'tipo_id':session['tipo_id'],
@@ -210,7 +210,7 @@ def mi_cuenta():
 						'id_barrio':id_barrio,
 						'direccion':request.form['direccion'],
 						'correo':request.form['correo'],
-						'telefono':request.form['telefono'],
+						'telefono':(request.form['telefono']),
 						'contrasena_nueva':contrasena
 					})
 					flash('correcto')
@@ -242,11 +242,14 @@ def mi_cuenta():
 			contrasena_usuario = bd['comercio'].find_one({'tipo_id':session['tipo_id'],'num_id':session['num_id']})['contrasena']
 			contrasena_actual = request.form['contrasena_act']
 			if bcrypt.check_password_hash(contrasena_usuario.encode('utf-8'),contrasena_actual.encode('utf-8')):
-				if bd['modificacion'].find_one({'tipo_id':session['tipo_id'],'num_id':session['num_id']}):
+				if bd['modificacion'].find_one({'tipo_cuenta':2,'tipo_id':session['tipo_id'],'num_id':session['num_id']}):
 					flash('no_solicitud')
 				else:
 					id_barrio = bd['barrio'].find_one({'nombre':request.form['barrio'],'municipio':request.form['municipio']})['id_barrio']
-					contrasena = "" if 'contrasena' not in request.form else request.form['contrasena']
+					contrasena = "" if 'contrasena' not in request.form else (bcrypt.generate_password_hash(request.form['contrasena'].encode('utf-8'))).decode('utf-8')
+					tel1 = (request.form['telefono1'])
+					tel2 = nan if 'telefono2' not in request.form else (request.form['telefono2'])
+					tel3 = nan if 'telefono3' not in request.form else (request.form['telefono3'])
 					bd['modificacion'].insert_one({
 						'tipo_cuenta':2,
 						'tipo_id': session['tipo_id'],
@@ -255,9 +258,9 @@ def mi_cuenta():
 						'id_barrio':id_barrio,
 						'correo':request.form['correo'],
 						'categoria':request.form['categoria'],
-						'telefono1':request.form['telefono1'],
-						'telefono2':request.form['telefono2'],
-						'telefono3':request.form['telefono3'],
+						'telefono1':tel1,
+						'telefono2':tel2,
+						'telefono3':tel3,
 						'contrasena_nueva':contrasena
 					})
 					flash('correcto')
@@ -292,11 +295,68 @@ def mi_cuenta():
 
 		return render_template('local_cuenta.html',local=local,barrio=barrio,departamentos=departamentos,categorias=categorias)
 	
-	elif session['tipo'] == 3: 
-		pass
+	elif session['tipo'] == 3:
+		if request.method == 'POST':
+			contrasena_usuario = bd['entidad_sanitaria'].find_one({'tipo_id':session['tipo_id'],'num_id':session['num_id']})['contrasena']
+			contrasena_actual = request.form['contrasena_act']
+			if bcrypt.check_password_hash(contrasena_usuario.encode('utf-8'),contrasena_actual.encode('utf-8')):
+				if bd['modificacion'].find_one({'tipo_cuenta':3,'tipo_id':session['tipo_id'],'num_id':session['num_id']}):
+					flash('no_solicitud')
+				else:
+					id_barrio = bd['barrio'].find_one({'nombre':request.form['barrio'],'municipio':request.form['municipio']})['id_barrio']
+					contrasena = "" if 'contrasena' not in request.form else (bcrypt.generate_password_hash(request.form['contrasena'].encode('utf-8'))).decode('utf-8')
+					bd['modificacion'].insert_one({
+						'tipo_cuenta':3,
+						'tipo_id':session['tipo_id'],
+						'num_id': session['num_id'],
+						'nombre':request.form['nombre'],
+						'id_barrio':id_barrio,
+						'correo':request.form['correo'],
+						'telefono':request.form['telefono'],
+						'contrasena_nueva':contrasena
+					})
+					flash('correcto')
+					return redirect(url_for("index"))
+
+			else:
+				flash('no_contrasena')
+
+		entidad = list(bd['entidad_sanitaria'].find_one({
+			'tipo_id':session['tipo_id'],
+			'num_id':session['num_id']
+		}).values())
+		print(entidad)
+
+		barrio = list(bd['barrio'].find_one({
+			'id_barrio':int(entidad[6])
+		}).values())
+
+		departamentos = list()
+		dep = bd['departamento'].find({})
+		for u in dep:
+			departamentos.append(u['nombre'])
+
+		return render_template('entidad_sanitaria_cuenta.html',entidad=entidad,barrio=barrio,departamentos=departamentos)
 	
 	elif session['tipo'] == 4:
-		pass
+		if request.method == 'POST':
+			bd['administrador'].update_one({
+				'usuario':session['usuario']
+			},{
+				'$set':{
+					'contrasena':request.form['contrasena'],
+					'nombres':request.form['nombres'],
+					'apellidos':request.form['apellidos']
+				}
+			})
+			flash('correcto')
+			return redirect(url_for("index"))
+
+		adminn = list(bd['administrador'].find_one({
+			'usuario':session['usuario']
+		}).values())
+
+		return render_template('admin_cuenta.html',adminn=adminn)
 
 
 @app.route("/cerrar-sesion/")
@@ -338,7 +398,7 @@ def registro_usuario():
 
 		direccion = request.form['direccion']
 		correo = request.form['correo']
-		telefono = request.form['telefono']
+		telefono = (request.form['telefono'])
 		usuario = request.form['usuario']
 		contrasena = (bcrypt.generate_password_hash(request.form['contrasena'].encode('utf-8'))).decode('utf-8')
 		
@@ -394,10 +454,10 @@ def registro_local():
 		correo = request.form['correo']
 		categoria = request.form['categoria']
 		telefonos = int(request.form['telefonos'])
-		telefono1 = request.form['telefono1']
+		telefono1 = (request.form['telefono1'])
 		telefono2, telefono3 = nan,nan
-		if telefonos > 1: telefono2 = request.form['telefono2']
-		if telefonos > 2: telefono3 = request.form['telefono3']
+		if telefonos > 1: telefono2 = (request.form['telefono2'])
+		if telefonos > 2: telefono3 = (request.form['telefono3'])
 		usuario = request.form['usuario']
 		contrasena = (bcrypt.generate_password_hash(request.form['contrasena'].encode('utf-8'))).decode('utf-8')
 		
@@ -446,7 +506,7 @@ def registro_entidad_salud():
 		id_barrio = bd['barrio'].find({'nombre':barrio,'municipio':municipio})[0]['id_barrio']
 
 		correo = request.form['correo']
-		telefono = request.form['telefono']
+		telefono = (request.form['telefono'])
 		
 		usuario = request.form['usuario']
 		contrasena = (bcrypt.generate_password_hash(request.form['contrasena'].encode('utf-8'))).decode('utf-8')
@@ -1089,7 +1149,65 @@ def gestionar_solicitudes_modificacion_civil():
 	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
-	return render_template("admin_gestionarSolicitudes_modificacion_usuarios.html")
+
+	if request.method == 'POST':
+		tipo_id = request.form['tipo_id']
+		num_id = request.form['num_id']
+		correo_1 = bd['civil'].find_one({'tipo_id':tipo_id,'num_id':num_id})['correo']
+		correo_2 = request.form['correo']
+		nombre = request.form['nombre']
+
+		if 'aceptar' in request.form:
+
+			usuario = list(bd['modificacion'].find_one({'tipo_cuenta':1,'tipo_id':tipo_id,'num_id':num_id}).values())
+
+			bd['civil'].update_one({
+				'tipo_id':tipo_id,
+				'num_id':num_id
+			},{
+				'$set':{
+					'nombres':usuario[4],
+					'apellidos':usuario[5],
+					'genero':usuario[6],
+					'nacimiento':usuario[7],
+					'id_barrio':usuario[8],
+					'direccion':usuario[9],
+					'correo':usuario[10],
+					'telefono':usuario[11]
+				}
+			})
+
+			if len(usuario[12]): bd['civil'].update_one({'tipo_id':tipo_id,'num_id':num_id},{'$set':{'contrasena':usuario[12]}})
+			
+			enviar_correo(correo_1,
+				"Solicitud de modificacion de cuenta",
+				mensaje_aprobacion_mod_civil.format(nombre),
+				'')
+			if correo_1 != correo_2:
+				enviar_correo(correo_2,
+					"Solicitud de modificacion de cuenta",
+					mensaje_aprobacion_mod_civil.format(nombre),
+					'')
+		else:
+			enviar_correo(correo_1,
+				"Solicitud de modificacion de cuenta",
+				mensaje_rechazo_mod_civil.format(nombre),
+				'')
+
+		bd['modificacion'].delete_one({'tipo_cuenta':1,'tipo_id':tipo_id,'num_id':num_id})
+			
+
+	usuarios = list()
+	for l in bd['modificacion'].find({'tipo_cuenta':1}):
+		aux = list(l.values())
+		barrio = bd['barrio'].find_one({'id_barrio':aux[8]})
+		if len(aux[12]): aux.append('SI')
+		else: aux.append('NO')
+		aux.append(barrio['municipio'])
+		aux.append(barrio['nombre'])
+		usuarios.append(aux)
+
+	return render_template("admin_gestionarSolicitudes_modificacion_usuarios.html",usuarios=usuarios)
 
 
 @app.route("/gestionar-solicitudes/modificacion/comercio",methods=['GET','POST'])
@@ -1100,7 +1218,65 @@ def gestionar_solicitudes_modificacion_comercio():
 	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
-	return render_template("admin_gestionarSolicitudes_modificacion_locales.html")
+
+	if request.method == 'POST':
+		tipo_id = request.form['tipo_id']
+		num_id = request.form['num_id']
+		correo_1 = bd['comercio'].find_one({'tipo_id':tipo_id,'num_id':num_id})['correo']
+		correo_2 = request.form['correo']
+		nombre = request.form['nombre']
+
+		if 'aceptar' in request.form:
+
+			local = list(bd['modificacion'].find_one({'tipo_cuenta':2,'tipo_id':tipo_id,'num_id':num_id}).values())
+
+			bd['comercio'].update_one({
+				'tipo_id':tipo_id,
+				'num_id':num_id
+			},{
+				'$set':{
+					'nombre':local[4],
+					'id_barrio':local[5],
+					'correo':local[6],
+					'categoria':local[7],
+					'telefono1':local[8],
+					'telefono2':local[9],
+					'telefono3':local[10]
+				}
+			})
+
+			if len(local[11]): bd['comercio'].update_one({'tipo_id':tipo_id,'num_id':num_id},{'$set':{'contrasena':local[11]}})
+			
+			enviar_correo(correo_1,
+				"Solicitud de modificacion de cuenta",
+				mensaje_aprobacion_mod_comercio.format(nombre),
+				'')
+			if correo_1 != correo_2:
+				enviar_correo(correo_2,
+					"Solicitud de modificacion de cuenta",
+					mensaje_aprobacion_mod_comercio.format(nombre),
+					'')
+		else:
+			enviar_correo(correo_1,
+				"Solicitud de modificacion de cuenta",
+				mensaje_rechazo_mod_comercio.format(nombre),
+				'')
+
+		bd['modificacion'].delete_one({'tipo_cuenta':2,'tipo_id':tipo_id,'num_id':num_id})
+
+	locales = list()
+	for l in bd['modificacion'].find({'tipo_cuenta':2}):
+		aux = list(l.values())
+		if str(aux[9]) == 'nan': aux[9] = 'N/A'
+		if str(aux[10]) == 'nan': aux[10] = 'N/A'
+		if len(aux[11]): aux.append('SI')
+		else: aux.append('NO')
+		barrio = bd['barrio'].find_one({'id_barrio':aux[5]})
+		aux.append(barrio['municipio'])
+		aux.append(barrio['nombre'])
+		locales.append(aux)
+
+	return render_template("admin_gestionarSolicitudes_modificacion_locales.html",locales=locales)
 
 
 @app.route("/gestionar-solicitudes/modificacion/entidad-sanitaria",methods=['GET','POST'])
@@ -1112,7 +1288,60 @@ def gestionar_solicitudes_modificacion_entidad_sanitaria():
 	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
-	return render_template("admin_gestionarSolicitudes_modificacion_entidadesSanitarias.html")
+
+	if request.method == 'POST':
+		tipo_id = request.form['tipo_id']
+		num_id = request.form['num_id']
+		correo_1 = bd['entidad_sanitaria'].find_one({'tipo_id':tipo_id,'num_id':num_id})['correo']
+		correo_2 = request.form['correo']
+		nombre = request.form['nombre']
+
+		if 'aceptar' in request.form:
+
+			entidad = list(bd['modificacion'].find_one({'tipo_cuenta':3,'tipo_id':tipo_id,'num_id':num_id}).values())
+
+			bd['entidad_sanitaria'].update_one({
+				'tipo_id':tipo_id,
+				'num_id':num_id
+			},{
+				'$set':{
+					'nombre':entidad[4],
+					'id_barrio':entidad[5],
+					'correo':entidad[6],
+					'telefono':entidad[7]
+				}
+			})
+
+			if len(entidad[8]): bd['entidad_sanitaria'].update_one({'tipo_id':tipo_id,'num_id':num_id},{'$set':{'contrasena':entidad[8]}})
+			
+			enviar_correo(correo_1,
+				"Solicitud de modificacion de cuenta",
+				mensaje_aprobacion_mod_entidad_sanitaria.format(nombre),
+				'')
+			if correo_1 != correo_2:
+				enviar_correo(correo_2,
+					"Solicitud de modificacion de cuenta",
+					mensaje_aprobacion_mod_entidad_sanitaria.format(nombre),
+					'')
+		else:
+			enviar_correo(correo_1,
+				"Solicitud de modificacion de cuenta",
+				mensaje_rechazo_mod_comercio.format(nombre),
+				'')
+
+		bd['modificacion'].delete_one({'tipo_cuenta':3,'tipo_id':tipo_id,'num_id':num_id})
+
+	entidades = list()
+	for es in bd['modificacion'].find({'tipo_cuenta':3}):
+		aux = list(es.values())
+		if len(aux[8]): aux.append('SI')
+		else: aux.append('NO')
+		barrio = bd['barrio'].find_one({'id_barrio':aux[5]})
+		aux.append(barrio['municipio'])
+		aux.append(barrio['nombre'])
+		entidades.append(aux)
+
+	return render_template("admin_gestionarSolicitudes_modificacion_entidadesSanitarias.html",entidades=entidades)
 
 
 if __name__ == "__main__":

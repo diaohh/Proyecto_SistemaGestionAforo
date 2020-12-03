@@ -20,7 +20,7 @@
 				<div class="col-md-3">
 					<nav>
 						<a href="/" class="opciones">Inicio</a>
-						<a href="/admin_cuenta/" class="opciones">Mi cuenta</a>
+						<a href="/mi-cuenta/" class="opciones">Mi cuenta</a>
 						<a href="/cerrar-sesion/" class="opciones">Cerrar sesion</a>
 					</nav>
 				</div>
@@ -44,19 +44,30 @@
 							<th>Telefono de contacto #1</th>
 							<th>Telefono de contacto #2</th>
 							<th>Telefono de contacto #3</th>
+							<th>Cambio de contraseña</th>
+							<th></th>
+							<th></th>
 						</tr>
 						{% for local in locales %}
 							<tr>
-								<td>{{local[1]}}</td>
+								<form action="/gestionar-solicitudes/modificacion/comercio" method="POST">
+								<input type="hidden" name="tipo_id" value="{{local[2]}}">
+								<input type="hidden" name="num_id" value="{{local[3]}}">
+								<input type="hidden" name="correo" value="{{local[6]}}">
+								<input type="hidden" name="nombre" value="{{local[4]}}">
 								<td>{{local[2]}}</td>
-								<td>{{local[5]}}</td>
+								<td>{{local[3]}}</td>
+								<td>{{local[4]}}</td>
 								<td>{{local[13]}}</td>
 								<td>{{local[14]}}</td>
+								<td>{{local[6]}}</td>
 								<td>{{local[7]}}</td>
 								<td>{{local[8]}}</td>
 								<td>{{local[9]}}</td>
 								<td>{{local[10]}}</td>
-								<td>{{local[11]}}</td>
+								<td>{{local[12]}}</td>
+								<td><button type="submit" name="aceptar">Aceptar</button></td>
+								<td><button type="submit" name="rechazar">Rechazar</button></td>
 							</tr>
 						{% endfor %}
 					</table>

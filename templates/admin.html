@@ -19,7 +19,7 @@
 				<div class="col-md-3">
 					<nav>
 						<a href="/" class="opciones">Inicio</a>
-						<a href="/admin_cuenta/" class="opciones">Mi cuenta</a>
+						<a href="/mi-cuenta/" class="opciones">Mi cuenta</a>
 						<a href="/cerrar-sesion/" class="opciones">Cerrar sesion</a>
 					</nav>
 				</div>
@@ -43,6 +43,25 @@
 			<button type="button" onclick="window.location.href='/gestionar-categorias/'">Gestionar categorias</button><br><br>
 			
 		</div>
+
+	{% with mensajes = get_flashed_messages() %}
+		{% if mensajes %}
+			{% for m in mensajes %}
+				{% if m == 'correcto' %}
+					<div id="popup_registro" class="bloquear">
+						<div class="contenido">
+							<h3><b>Modificacion exitosa!</b></h3><br>
+							<p>
+							Se han realizado las modificaciones a la
+							cuenta de administrador correctamente.
+							</p>
+							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Finalizar</button>
+						</div>
+					</div>
+				{% endif %}
+			{% endfor %}
+		{% endif %}
+		{% endwith %}
 
 	</body>
 </html>

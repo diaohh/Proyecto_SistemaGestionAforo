@@ -20,7 +20,7 @@
 				<div class="col-md-3">
 					<nav>
 						<a href="/" class="opciones">Inicio</a>
-						<a href="/admin_cuenta/" class="opciones">Mi cuenta</a>
+						<a href="/mi-cuenta/" class="opciones">Mi cuenta</a>
 						<a href="/cerrar-sesion/" class="opciones">Cerrar sesion</a>
 					</nav>
 				</div>
@@ -41,16 +41,27 @@
 							<th>Barrio de entidad</th>
 							<th>Correo de contacto</th>
 							<th>Telefono de contacto</th>
+							<th>Cambio de contraseña</th>
+							<th></th>
+							<th></th>
 						</tr>
 						{% for entidad in entidades %}
 							<tr>
-								<td>{{entidad[1]}}</td>
+								<form action="/gestionar-solicitudes/modificacion/entidad-sanitaria" method="POST">
+								<input type="hidden" name="tipo_id" value="{{entidad[2]}}">
+								<input type="hidden" name="num_id" value="{{entidad[3]}}">
+								<input type="hidden" name="correo" value="{{entidad[6]}}">
+								<input type="hidden" name="nombre" value="{{entidad[4]}}">
 								<td>{{entidad[2]}}</td>
-								<td>{{entidad[5]}}</td>
+								<td>{{entidad[3]}}</td>
+								<td>{{entidad[4]}}</td>
 								<td>{{entidad[10]}}</td>
 								<td>{{entidad[11]}}</td>
+								<td>{{entidad[6]}}</td>
 								<td>{{entidad[7]}}</td>
-								<td>{{entidad[8]}}</td>
+								<td>{{entidad[9]}}</td>
+								<td><button type="submit" name="aceptar">Aceptar</button></td>
+								<td><button type="submit" name="rechazar">Rechazar</button></td>
 							</tr>
 						{% endfor %}
 					</table>

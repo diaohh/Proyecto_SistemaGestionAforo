@@ -79,6 +79,21 @@
 							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Finalizar</button>
 						</div>
 					</div>
+				{% elif m == 'correcto' %}
+					<div id="popup_registro" class="bloquear">
+						<div class="contenido">
+							<h3><b>Solicitud de modificacion exitosa!</b></h3><br>
+							<p>
+							Se ha enviado la solicitud de modificacion
+							de datos exitosamente, la desicion tomada
+							por los administradores sera notificada
+							por medio de correo electronico, no se pueden
+							enviar mas solicitudes hasta una respuesta
+							a la actual.
+							</p>
+							<button type="button" onclick="document.getElementById('popup_registro').style.display = 'none';">Finalizar</button>
+						</div>
+					</div>
 				{% endif %}
 			{% endfor %}
 		{% endif %}

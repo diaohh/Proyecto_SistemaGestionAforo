@@ -12,19 +12,19 @@
 		function actualizar_telefonos(selection){
 			
 			if(selection=='1'){
-				document.formulario_registro.telefono2.disabled = true;
-				document.formulario_registro.telefono3.disabled = true;
+				document.formulario_modificacion.telefono2.disabled = true;
+				document.formulario_modificacion.telefono3.disabled = true;
 				document.getElementById("telefono2").value = ''; 
 				document.getElementById("telefono3").value = ''; 
 			}
 			else if(selection=='2'){
-				document.formulario_registro.telefono2.disabled = false;
-				document.formulario_registro.telefono3.disabled = true;
+				document.formulario_modificacion.telefono2.disabled = false;
+				document.formulario_modificacion.telefono3.disabled = true;
 				document.getElementById("telefono3").value = ''; 
 			}
 			else if(selection=='3'){
-				document.formulario_registro.telefono2.disabled = false;
-				document.formulario_registro.telefono3.disabled = false;
+				document.formulario_modificacion.telefono2.disabled = false;
+				document.formulario_modificacion.telefono3.disabled = false;
 			}
 		}
 		</script>
@@ -52,7 +52,7 @@
 			<div class="col-md-3"></div>
 			<div class="col-md-3">
 				<label for="tipo_id">Tipo de documento</label>
-				<input type="text" id="num_id" name="num_id" placeholder="Numero de identificacion" value="{{local[1]}}" disabled required><br><br>
+				<input type="text" id="tipo_id" name="tipo_id" placeholder="Numero de identificacion" value="{{local[1]}}" disabled required><br><br>
 
 				<label id="label_num_doc">Numero de documento</label>
 				<input type="text" id="num_id" name="num_id" placeholder="Numero de identificacion" value="{{local[2]}}" disabled required><br><br>
