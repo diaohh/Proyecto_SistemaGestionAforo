@@ -190,6 +190,9 @@ def mi_cuenta():
 		return redirect(url_for("index"))
 	
 	elif session['tipo'] == 1:
+		if request.method == 'POST':
+			bd['civil'].find_one()
+
 		usuario = list(bd['civil'].find_one({
 			'tipo_id':session['tipo_id'],
 			'num_id':session['num_id']

@@ -46,7 +46,7 @@
 						</tr>
 						{% for entidad in entidades %}
 							<tr>
-								<form action="/gestionar-solicitudes/registro/civil" method="POST">
+								<form action="/gestionar-solicitudes/registro/entidad_sanitaria" method="POST">
 								<input type="hidden" name="tipo_id" value="{{entidad[1]}}">
 								<input type="hidden" name="num_id" value="{{entidad[2]}}">
 								<input type="hidden" name="correo" value="{{entidad[7]}}">

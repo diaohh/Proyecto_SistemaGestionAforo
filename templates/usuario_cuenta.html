@@ -34,7 +34,7 @@
 				<label for="tipo_id">Tipo de documento</label>
 				<input type="text" id="tipo_id" name="tipo_id" placeholder="Numero de identificacion" value="{{usuario[1]}}" disabled><br><br>
 				
-				<label id="label_num_doc"></label>
+				<label for="num_id">Numero de documento</label>
 				<input type="text" id="num_id" name="num_id" placeholder="Numero de identificacion" value="{{usuario[2]}}" disabled><br><br>
 				
 				<input type="text" id="nombre" name="nombre" placeholder="Nombres" value="{{usuario[5]}}" required><br><br>
@@ -96,11 +96,11 @@
 				<input type="checkbox" name="cambiar_contrasena" id="cambiar_contrasena" style="vertical-align: middle; width: 25px">
 				<label for="cambiar_contrasena" style="vertical-align: middle;">Cambiar contraseña?</label>
 				
-				<div class="row" id="div_contrasena" disabled>
+				<div class="row" id="div_contrasena">
 				<div class="col-md-6">
-				<input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required><br><br>
+				<input type="password" id="contrasena" name="contrasena" placeholder="Nueva contraseña" disabled="true" required><br><br>
 				<label id="contrasena2_l"></label>
-				<input type="password" id="contrasena2" name="contrasena2" placeholder="Confirmar contraseña" required><br><br>
+				<input type="password"  id="contrasena2" name="contrasena2" placeholder="Confirmar nueva contraseña" disabled="true" required><br><br>
 				</div>
 				<div class="col-md-6">
 					<label>La contraseña debe tener almenos</label><br><br>

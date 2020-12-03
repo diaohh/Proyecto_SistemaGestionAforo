@@ -114,16 +114,19 @@ function actualizarBarrios(){
 municipio.onchange = function(){ actualizarBarrios(); }
 
 var cambiar_contrasena = document.getElementById("cambiar_contrasena");
-var div_contrasena = document.getElementById("div_contrasena");
-var bandera = true;
-console.log(div_contrasena);
 cambiar_contrasena.onchange = function(){
-	if(bandera){
-		console.log('XD');
-		div_contrasena.style.visibility = "visible";
-		bandera = false;
+	if(contrasena.disabled){
+		contrasena.disabled = false;
+		contrasena2.disabled = false;
 	}else{
-		div_contrasena.style.visibility = "none";
-		bandera = true;
+		contrasena.disabled = true;
+		contrasena2.disabled = true;
+		contrasena.value = '';
+		contrasena2.value= '';
+		numero.innerHTML = "";
+		letra.innerHTML = "";
+		caracter.innerHTML = "";
+		longitud.innerHTML = "";
+		contrasena2_l.innerHTML = "";
 	}
 }
