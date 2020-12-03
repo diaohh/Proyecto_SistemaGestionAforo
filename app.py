@@ -214,6 +214,8 @@ def mi_cuenta():
 						'contrasena_nueva':contrasena
 					})
 					flash('correcto')
+					return redirect(url_for("index"))
+
 
 			else:
 				flash('no_contrasena')
@@ -259,6 +261,7 @@ def mi_cuenta():
 						'contrasena_nueva':contrasena
 					})
 					flash('correcto')
+					return redirect(url_for("index"))
 
 			else:
 				flash('no_contrasena')
