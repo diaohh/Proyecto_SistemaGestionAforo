@@ -78,6 +78,7 @@ function actualizarMuns(){
 	dep = departamento.value;
 	fetch('/muns/'+dep).then(function(aux){
 		aux.json().then(function(muns){
+			muns.municipios.sort();
 			let auxHTML = '';
 			for(let m of muns.municipios){
 				if(m == mun){
@@ -99,6 +100,7 @@ function actualizarBarrios(){
 	mun = municipio.value;
 	fetch('/barrios/'+mun).then(function(aux){
 		aux.json().then(function(bars){
+			bars.barrios.sort();
 			let auxHTML = '';
 			for(let b of bars.barrios){
 				if(b == bar){

@@ -46,6 +46,7 @@ function actualizarMuns1(){
 	dep = departamento1.value;
 	fetch('/muns/'+dep).then(function(aux){
 		aux.json().then(function(muns){
+			muns.municipios.sort();
 			let auxHTML = '';
 			for(let m of muns.municipios){
 				auxHTML += '<option value="'+ m +'">'+ m +'</option>';
@@ -61,6 +62,7 @@ function actualizarBarrios1(){
 	mun = municipio1.value;
 	fetch('/barrios/'+mun).then(function(aux){
 		aux.json().then(function(bars){
+			bars.barrios.sort();
 			let auxHTML = '';
 			for(let b of bars.barrios){
 				auxHTML += '<option value="'+ b +'">'+ b +'</option>';
@@ -78,6 +80,7 @@ function actualizarMuns2(){
 	dep = departamento2.value;
 	fetch('/muns/'+dep).then(function(aux){
 		aux.json().then(function(muns){
+			muns.municipios.sort();
 			let auxHTML = '';
 			for(let m of muns.municipios){
 				auxHTML += '<option value="'+ m +'">'+ m +'</option>';
@@ -93,6 +96,7 @@ function actualizarBarrios2(){
 	mun = municipio2.value;
 	fetch('/barrios/'+mun).then(function(aux){
 		aux.json().then(function(bars){
+			bars.barrios.sort();
 			let auxHTML = '';
 			for(let b of bars.barrios){
 				auxHTML += '<option value="'+ b +'">'+ b +'</option>';
@@ -110,6 +114,7 @@ function actualizarMuns3(){
 	dep = departamento3.value;
 	fetch('/muns/'+dep).then(function(aux){
 		aux.json().then(function(muns){
+			muns.municipios.sort();
 			let auxHTML = '';
 			for(let m of muns.municipios){
 				auxHTML += '<option value="'+ m +'">'+ m +'</option>';
@@ -125,6 +130,7 @@ function actualizarBarrios3(){
 	mun = municipio3.value;
 	fetch('/barrios/'+mun).then(function(aux){
 		aux.json().then(function(bars){
+			bars.barrios.sort();
 			let auxHTML = '';
 			for(let b of bars.barrios){
 				auxHTML += '<option value="'+ b +'">'+ b +'</option>';

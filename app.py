@@ -255,7 +255,7 @@ def mi_cuenta():
 		dep = bd['departamento'].find({})
 		for u in dep:
 			departamentos.append(u['nombre'])
-
+		departamentos.sort()
 		return render_template('usuario_cuenta.html',usuario=usuario,barrio=barrio,departamentos=departamentos)
 
 	
@@ -315,7 +315,7 @@ def mi_cuenta():
 		cat = bd['categoria'].find({})
 		for u in cat:
 			categorias.append(u['nombre'])
-
+		departamentos.sort()
 		return render_template('local_cuenta.html',local=local,barrio=barrio,departamentos=departamentos,categorias=categorias)
 	
 	elif session['tipo'] == 3:
@@ -358,7 +358,7 @@ def mi_cuenta():
 		dep = bd['departamento'].find({})
 		for u in dep:
 			departamentos.append(u['nombre'])
-
+		departamentos.sort()
 		return render_template('entidad_sanitaria_cuenta.html',entidad=entidad,barrio=barrio,departamentos=departamentos)
 	
 	elif session['tipo'] == 4:
@@ -405,7 +405,7 @@ def registro_usuario():
 		dep = bd['departamento'].find({})
 		for u in dep:
 			departamentos.append(u['nombre'])
-
+		departamentos.sort()
 		return render_template("usuario_registro.html", departamentos=departamentos)
 	else:
 		tipo_id = request.form['tipo_id']
@@ -463,7 +463,7 @@ def registro_local():
 		cat = bd['categoria'].find({})
 		for u in cat:
 			categorias.append(u['nombre'])
-
+		departamentos.sort()
 		return render_template("local_registro.html", departamentos=departamentos,categorias=categorias)
 	else:
 		tipo_id = request.form['tipo_id']
@@ -518,6 +518,7 @@ def registro_entidad_salud():
 		for u in dep:
 			departamentos.append(u['nombre'])
 
+		departamentos.sort()
 		return render_template("entidad_sanitaria_registro.html", departamentos=departamentos)
 	else:
 		tipo_id = request.form['tipo_id']
@@ -688,6 +689,7 @@ def recuperar_contrasena():
 	for u in cat:
 		categorias.append(u['nombre'])
 
+		departamentos.sort()
 	return render_template("recuperar_contrasena.html",departamentos=departamentos,categorias=categorias)
 
 
@@ -700,6 +702,7 @@ def obtener_municipios(dep):
 	"""
 	municipios = list()
 	for m in bd['municipio'].find({'departamento':dep}): municipios.append(m['nombre'])
+	
 	return jsonify({'municipios':municipios})
 
 
@@ -712,6 +715,7 @@ def obtener_barrios(mun):
 	"""
 	barrios = list()
 	for b in bd['barrio'].find({'municipio':mun}): barrios.append(b['nombre'])
+
 	return jsonify({'barrios':barrios})
 
 
@@ -1154,6 +1158,7 @@ def gestionar_barrios():
 	barrios = list()
 	for b in bd['barrio'].find({}): barrios.append(list(b.values()))
 	
+	departamentos.sort()
 	return render_template("admin_gestionarBarrios.html",barrios=barrios, departamentos=departamentos)
 
 
