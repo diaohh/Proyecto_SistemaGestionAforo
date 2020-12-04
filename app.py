@@ -153,6 +153,7 @@ def inicio_sesion():
 		contrasena = request.form['contrasena']
 		tipo_cuenta = 0 # 1: Civil, 2: Comercio, 3: Entidad Sanitaria, 4: admin
 
+		session.clear()
 		usuario_bd = bd['civil'].find_one({'usuario':usuario})
 		if usuario_bd:
 			if bcrypt.check_password_hash(usuario_bd['contrasena'].encode('utf-8'),contrasena.encode('utf-8')):
@@ -197,6 +198,7 @@ def inicio_sesion():
 
 		if len(session): return redirect(url_for("index"))
 		flash('incorrecto')
+		print('ASJFDKLAJDKLAS')
 		return render_template("inicio_de_sesion.html")
 
 
