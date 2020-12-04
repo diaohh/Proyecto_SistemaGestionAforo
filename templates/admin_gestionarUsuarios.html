@@ -37,7 +37,31 @@
 					<option value="CC">Cedula de ciudadania</option>
 					<option value="TI">Tarjeta de identidad</option>
 					<option value="TE">Tarjeta de extranjeria</option>
-				</select><br><br>
+				</select>
+
+				<label for="filtro_barrio">Barrio</label>
+				<select id="filtro_barrio" name="filtro_barrio" style="width: 15%">
+					<option value="">Seleccione un barrio</option>
+					{% for barrio in barrios %}
+						<option value="{{barrio}}">{{barrio}}</option>
+					{% endfor %}
+				</select>
+
+
+				<label for="filtro_departamento">Departamento</label>
+				<select id="filtro_departamento" name="filtro_departamento" style="width: 15%">
+					<option value="">Seleccione un departamento</option>
+					{% for departamento in departamentos %}
+						<option value="{{departamento}}">{{departamento}}</option>
+					{% endfor %}
+				</select>
+
+				<label for="filtro_contagio">Mostrar Contagiados</label>
+				<select id="filtro_contagio" name="filtro_contagio" style="width: 12%">
+					<option value="">Todos</option>
+					<option value="SI">Si</option>
+					<option value="NO">No</option>
+				</select>><br><br>
 
 				<div style="height: 620px ;overflow: auto;">
 					<table id="datos_usuarios" cellspacing="0" cellpadding="1" border="1">
@@ -55,12 +79,11 @@
 	<script type="text/javascript">
 		var usr = [
 		{% for usuario in usuarios %}
-			['{{usuario[1]}}','{{usuario[2]}}','{{usuario[5]}}','{{usuario[6]}}','{{usuario[7]}}','{{usuario[8]}}','{{usuario[14]}}','{{usuario[15]}}','{{usuario[10]}}','{{usuario[11]}}','{{usuario[12]}}','{{usuario[16]}}']{% if usuario != usuarios[-1] %},{% endif %}
+			['{{usuario[1]}}','{{usuario[2]}}','{{usuario[5]}}','{{usuario[6]}}','{{usuario[7]}}','{{usuario[8]}}','{{usuario[16]}}','{{usuario[14]}}','{{usuario[15]}}','{{usuario[10]}}','{{usuario[11]}}','{{usuario[12]}}','{{usuario[17]}}']{% if usuario != usuarios[-1] %},{% endif %}
 		{% endfor %}
 		];
 
 		var datos_usuarios = document.getElementById("datos_usuarios");
-		var filtro_tipo_id = document.getElementById("filtro_tipo_id");
 		function llenar_tabla(datos){
 			datos_usuarios.innerHTML = `
 			<tr>
@@ -70,6 +93,7 @@
 				<th>Apellidos</th>
 				<th>Genero</th>
 				<th>Fecha de nacimiento</th>
+				<th>Departamento de residencia</th>
 				<th>Municipio de residencia</th>
 				<th>Barrio de residencia</th>
 				<th>Direccion de residencia</th>
@@ -92,22 +116,40 @@
 					<td>${datos[i][9]}</td>
 					<td>${datos[i][10]}</td>
 					<td>${datos[i][11]}</td>
+					<td>${datos[i][12]}</td>
 				</tr>`
 			}
 		}
 		llenar_tabla(usr);
 
-		filtro_tipo_id.onchange = function(){
-			var tipo = filtro_tipo_id.value;
+		var filtro_tipo_id = document.getElementById("filtro_tipo_id");
+		filtro_tipo_id.onchange = function(){ actualizarFiltros(); }
+
+		var filtro_barrio = document.getElementById("filtro_barrio");
+		filtro_barrio.onchange = function(){ actualizarFiltros(); }
+
+		var filtro_departamento = document.getElementById("filtro_departamento");
+		filtro_departamento.onchange = function(){ actualizarFiltros(); }
+
+		var filtro_contagio = document.getElementById("filtro_contagio")
+		filtro_contagio.onchange = function(){ actualizarFiltros(); }
+
+		function actualizarFiltros(){
 			var usr_filtrado = [];
+			var tipo = filtro_tipo_id.value;
+			var barr = filtro_barrio.value;
+			var dep = filtro_departamento.value;
+			var con = filtro_contagio.value;
 			for(var i=0;i<usr.length;i++){
-				if(!tipo.length || usr[i][0] == tipo){
+				if((!tipo.length || usr[i][0] == tipo) &&
+					(!barr.length || usr[i][8] == barr) &&
+					(!dep.length || usr[i][6] == dep) &&
+					(!con.length || usr[i][12] == con)){
 					usr_filtrado.push(usr[i]);
 				}
 			}
 			llenar_tabla(usr_filtrado);
 		}
-
 
 	</script>
 	</body>
