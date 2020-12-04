@@ -54,8 +54,8 @@
 			<div class="col-md-2" style="text-align: center;">
 				<form id="create_admin" action="/gestionar-admins/" method="POST">
 					<h5>Crear cuenta de administrador</h5><br>
-					<input type="text" id="nombre" name="nombre" placeholder="Nombres" required><br>
-					<input type="text" id="apellido" name="apellido" placeholder="Apellidos" required><br>
+					<input type="text" id="nombre" name="nombre" placeholder="Nombres" pattern="[A-Za-zñÑ]{1,}" required><br>
+					<input type="text" id="apellido" name="apellido" placeholder="Apellidos" pattern="[A-Za-zñÑ]{1,}" required><br>
 					<input type="text" id="usuario"  name="usuario" placeholder="Nombre de usuario" required><br>
 					<input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required><br>
 					<br><button>Crear cuenta</button>

@@ -31,8 +31,8 @@
 				<div class="col-md-5"></div>
 				<div class="col-md-2">
 				<form name=formulario_modificacion action="/mi-cuenta/" method="POST">
-					<input type="text" id="nombres" name="nombres" placeholder="Nombres" value="{{adminn[3]}}" required><br><br>
-					<input type="text" id="apellidos" name="apellidos" placeholder="Apellidos" value="{{adminn[4]}}" required><br><br>
+					<input type="text" id="nombres" name="nombres" placeholder="Nombres" value="{{adminn[3]}}" pattern="[A-Za-zñÑ]{1,}" required><br><br>
+					<input type="text" id="apellidos" name="apellidos" placeholder="Apellidos" value="{{adminn[4]}}" pattern="[A-Za-zñÑ]{1,}" required><br><br>
 					<input type="text" id="usuario" name="usuario" placeholder="Nombre de usuario" value="{{adminn[1]}}" disabled required><br><br>
 					<input type="text" id="contrasena" name="contrasena" placeholder="Contraseña" value="{{adminn[2]}}" required><br><br>
 					<button>Guardar cambios</button><br><br>

@@ -40,8 +40,8 @@
 				</select><br>
 				<label id="label_num_doc"></label>
 				<input type="text" id="num_id" name="num_id" placeholder="Numero de identificacion" pattern="[0-9]{8,11}" required><br><br>
-				<input type="text" id="nombre" name="nombre" placeholder="Nombres" required><br><br>
-				<input type="text" id="apellido" name="apellido" placeholder="Apellidos" required><br><br>
+				<input type="text" id="nombre" name="nombre" placeholder="Nombres" pattern="[A-Za-zñÑ]{1,}" required><br><br>
+				<input type="text" id="apellido" name="apellido" placeholder="Apellidos" pattern="[A-Za-zñÑ]{1,}" required><br><br>
 
 				<label for="genero">Genero</label>
 				<select id="genero" name="genero">

@@ -37,9 +37,9 @@
 				<label for="num_id">Numero de documento</label>
 				<input type="text" id="num_id" name="num_id" placeholder="Numero de identificacion" value="{{usuario[2]}}" disabled><br><br>
 				
-				<input type="text" id="nombre" name="nombres" placeholder="Nombres" value="{{usuario[5]}}" required><br><br>
+				<input type="text" id="nombre" name="nombres" placeholder="Nombres" value="{{usuario[5]}}" pattern="[A-Za-zñÑ]{1,}" required><br><br>
 				
-				<input type="text" id="apellido" name="apellidos" placeholder="Apellidos" value="{{usuario[6]}}" required><br><br>
+				<input type="text" id="apellido" name="apellidos" placeholder="Apellidos" value="{{usuario[6]}}" pattern="[A-Za-zñÑ]{1,}" required><br><br>
 
 				<label for="genero">Genero</label>
 				<select id="genero" name="genero">

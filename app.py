@@ -198,7 +198,6 @@ def inicio_sesion():
 
 		if len(session): return redirect(url_for("index"))
 		flash('incorrecto')
-		print('ASJFDKLAJDKLAS')
 		return render_template("inicio_de_sesion.html")
 
 
@@ -890,6 +889,7 @@ def local_destiempo():
 
 		permitido = 1
 		tapabocas = 'SI'
+		print(request.form)
 		if 'tapabocas' not in request.form:
 			permitido = 0
 			tapabocas = 'NO'
