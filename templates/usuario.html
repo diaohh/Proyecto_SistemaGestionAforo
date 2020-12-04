@@ -30,18 +30,13 @@
 		<div class="row">
 			<div class="col-md-1"></div>
 			<div class="col-md-7">
+				<label><b>Filtrar fecha de la visita:</b></label>
+				<input type="date" id="fecha_filtro" name="fecha_filtro" style="width: 200px">
+				<button type="button" id="limpiar_filtro">Limpiar filtro</button>
+
 				<div style="height: 620px ;overflow: auto;">
-					<table id="users_data" cellspacing="0" cellpadding="1" border="1">
-						<tr>
-							<th>Nombre del local visitado</th>
-							<th>Fecha y hora de la visita</th>
-						</tr>
-						{% for visita in visitas %}
-							<tr>
-								<td>{{visita[0]}}</td>
-								<td>{{visita[1]}}</td>
-							</tr>
-						{% endfor %}
+					<table id="datos_usuarios" cellspacing="0" cellpadding="1" border="1">
+						
 					</table>
 				</div>
 			</div>
@@ -94,5 +89,51 @@
 			{% endfor %}
 		{% endif %}
 	{% endwith %}
+	<script type="text/javascript">
+		var vis = [
+		{% for visita in visitas %}
+				['{{visita[0]}}','{{visita[1]}}'.split(" ")]{% if visita != visitas[-1] %},{% endif %}			
+		{% endfor %}
+		];
+
+		var datos_usuarios = document.getElementById("datos_usuarios");
+		var fecha_filtro = document.getElementById("fecha_filtro");
+		function llenar_tabla(datos){
+			datos_usuarios.innerHTML = `
+			<tr>
+				<th>Nombre del local visitado</th>
+				<th>Fecha de la visita</th>
+				<th>Hora de la visita</th>
+			</tr>`;
+			for(var i=0;i<datos.length;i++){
+				datos_usuarios.innerHTML += `
+				<tr>
+					<td>${datos[i][0]}</td>
+					<td>${datos[i][1][0]}</td>
+					<td>${datos[i][1][1]}</td>
+				</tr>`
+			}
+		}
+		llenar_tabla(vis);
+
+		fecha_filtro.onchange = function(){
+			var fecha = fecha_filtro.value;
+			var vis_filtrado = [];
+			for(var i=0;i<vis.length;i++){
+				if(vis[i][1][0] == fecha){
+					vis_filtrado.push(vis[i]);
+				}
+			}
+			llenar_tabla(vis_filtrado);
+		}
+
+		var limpiar_filtro = document.getElementById("limpiar_filtro");
+		limpiar_filtro.onclick = function(){
+			llenar_tabla(vis);
+			fecha_filtro.value = '';
+		}
+
+
+	</script>
 	</body>
 </html>
