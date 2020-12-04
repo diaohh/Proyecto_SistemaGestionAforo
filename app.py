@@ -656,7 +656,6 @@ def recuperar_contrasena():
 			telefono = request.form['telefono']
 			usuario = request.form['usuario']
 
-			print(request.form)
 			if bd['entidad_sanitaria'].find_one({'tipo_id':tipo_id,'num_id':num_id,'usuario':usuario}):
 				if bd['modificacion'].find_one({'tipo_id':tipo_id,'num_id':num_id}):
 					flash('pendiente')
@@ -969,6 +968,27 @@ def registro_resultado():
 		return redirect(url_for("index"))
 
 
+@app.route("/entidad-sanitaria/usuarios/",methods=['GET'])
+def entidad_sanitaria_usuarios():
+	"""
+	Retorna pagina donde se listan los usuarios
+	registrados en el sistema para las entidades
+	sanitarias
+	"""
+	if 'tipo' not in session or session['tipo'] != 3:
+		return redirect(url_for("index"))
+
+	usuarios = list()
+	for l in bd['civil'].find({'pendiente':0}):
+		aux = list(l.values())
+		barrio = bd['barrio'].find_one({'id_barrio':aux[9]})
+		aux.append(barrio['municipio'])
+		aux.append(barrio['nombre'])
+		usuarios.append(aux)
+
+	return render_template('entidad_sanitaria_usuarios.html',usuarios=usuarios)
+
+
 @app.route("/gestionar-locales/")
 def gestionar_locales():
 	"""
@@ -1041,6 +1061,27 @@ def gestionar_usuarios():
 		usuarios.append(aux)
 
 	return render_template("admin_gestionarUsuarios.html",usuarios=usuarios)
+
+
+@app.route("/gestionar-visitas/")
+def gestionar_visitas():
+	"""
+	Retorna la pagina de gestion de civiles
+	para el usuario administrador
+	"""
+	if 'tipo' not in session or session['tipo'] != 4:
+		return redirect(url_for("index"))
+
+	visitas = list()
+	for l in bd['visita'].find({}):
+		aux = list(l.values())
+		usuario = bd['civil'].find_one({'tipo_id':aux[1],'num_id':aux[2]})
+		aux.append(usuario['nombres'])
+		aux.append(usuario['apellidos'])
+		aux.append(bd['comercio'].find_one({'tipo_id':aux[4],'num_id':aux[5]})['nombre'])
+		visitas.append(aux)
+
+	return render_template("admin_gestionarVisitas.html",visitas=visitas)
 
 
 @app.route("/gestionar-admins/",methods=['GET','POST'])
