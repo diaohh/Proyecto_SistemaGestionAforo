@@ -1012,7 +1012,12 @@ def gestionar_locales():
 		aux.append(barrio['nombre'])
 		locales.append(aux)
 
-	return render_template("admin_gestionarLocales.html",locales=locales)
+	categorias = list()
+	cat = bd['categoria'].find({})
+	for u in cat:
+		categorias.append(u['nombre'])
+
+	return render_template("admin_gestionarLocales.html",locales=locales,categorias=categorias)
 
 
 @app.route("/gestionar-entidades-sanitarias/")
@@ -1668,6 +1673,12 @@ def gestionar_solicitudes_modificacion_entidad_sanitaria():
 		entidades.append(aux)
 
 	return render_template("admin_gestionarSolicitudes_modificacion_entidadesSanitarias.html",entidades=entidades)
+
+
+@app.before_request
+def recargar_sesion():
+	session.permanent = True
+	app.permanent_session_lifetime = timedelta(minutes=15)
 
 
 if __name__ == "__main__":

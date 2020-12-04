@@ -31,6 +31,13 @@
 		<div class="row">
 			<div class="col-md-1"></div>
 			<div class="col-md-10">
+				<label for="categoria">Categoria del local</label>
+				<select id="categoria" name="categoria" style="width: 15%">
+					<option value="">Seleccione una categoria</option>
+					{% for categoria in categorias %}
+						<option value="{{categoria}}">{{categoria}}</option>
+					{% endfor %}
+				</select><br><br>
 				<div style="height: 620px ;overflow: auto;">
 					<table id="users_data" cellspacing="0" cellpadding="1" border="1">
 						<tr>
@@ -69,5 +76,59 @@
 			<div class="col-md-1"></div>
 		</div>
 
+	<script type="text/javascript">
+		var vis = [
+		{% for visita in visitas %}
+			['{{visita[0]}}','{{visita[1]}}','{{visita[2]}}'.split(" "),'{{visita[3]}}','{{visita[4]}}'+'°C','{{visita[5]}}']{% if visita != visitas[-1] %},{% endif %}
+		{% endfor %}
+		];
+
+		var datos_usuarios = document.getElementById("datos_usuarios");
+		var fecha_filtro = document.getElementById("fecha_filtro");
+		function llenar_tabla(datos){
+			datos_usuarios.innerHTML = `
+			<tr>
+				<th>Tipo de documento</th>
+				<th>Numero de documento</th>
+				<th>Fecha de la visita</th>
+				<th>Hora de la visita</th>
+				<th>llevaba tapabocas</th>
+				<th>temperatura registrada</th>
+				<th>ingresó al local</th>
+			</tr>`;
+			for(var i=0;i<datos.length;i++){
+				datos_usuarios.innerHTML += `
+				<tr>
+					<td>${datos[i][0]}</td>
+					<td>${datos[i][1]}</td>
+					<td>${datos[i][2][0]}</td>
+					<td>${datos[i][2][1]}</td>
+					<td>${datos[i][3]}</td>
+					<td>${datos[i][4]}</td>
+					<td>${datos[i][5]}</td>
+				</tr>`
+			}
+		}
+		llenar_tabla(vis);
+
+		fecha_filtro.onchange = function(){
+			var fecha = fecha_filtro.value;
+			var vis_filtrado = [];
+			for(var i=0;i<vis.length;i++){
+				if(vis[i][2][0] == fecha){
+					vis_filtrado.push(vis[i]);
+				}
+			}
+			llenar_tabla(vis_filtrado);
+		}
+
+		var limpiar_filtro = document.getElementById("limpiar_filtro");
+		limpiar_filtro.onclick = function(){
+			llenar_tabla(vis);
+			fecha_filtro.value = '';
+		}
+
+
+	</script>
 	</body>
 </html>
