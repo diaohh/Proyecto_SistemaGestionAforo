@@ -1429,7 +1429,7 @@ def gestionar_solicitudes_modificacion_civil():
 
 		else:
 
-			if usuarios[2] == 0:
+			if usuario[2] == 0:
 				enviar_correo(correo_1,
 					"Solicitud de modificacion de cuenta",
 					mensaje_rechazo_mod_civil.format(nombre),
