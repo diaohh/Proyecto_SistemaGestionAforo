@@ -31,6 +31,7 @@ from random import randint,shuffle
 
 #aplicativo flask
 app = Flask(__name__)
+app.secret_key = "jda()/_s8U9??¡!823jeD" 
 #Modulo para encriptacion de contraseñas
 bcrypt = Bcrypt(app)
 #Coneccion con la base de datos recibida como parametro en el llamado
@@ -1698,5 +1699,4 @@ def recargar_sesion():
 
 
 if __name__ == "__main__":
-	app.secret_key = "jda()/_s8U9??¡!823jeD" 
 	app.run(host='0.0.0.0',port='8080',debug=True)
