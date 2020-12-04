@@ -23,9 +23,6 @@ from numpy import nan
 from email.message import EmailMessage
 import smtplib
 
-#Pasar base de datos como parametro
-from sys import argv
-
 #Mensajes predefinidos de respuesta automatica
 from mensajes import *
 
@@ -37,11 +34,11 @@ app = Flask(__name__)
 #Modulo para encriptacion de contraseñas
 bcrypt = Bcrypt(app)
 #Coneccion con la base de datos recibida como parametro en el llamado
-cliente = MongoClient(argv[1])
+cliente = MongoClient("mongodb+srv://admin19:admin19@dbcov19.0ih7g.mongodb.net/DBCOV19?retryWrites=true&w=majority")
 bd = cliente['projectdb']
 
-usuario_correo = argv[2]
-contrasena_correo = argv[3]
+usuario_correo = "sistemadegestionyaforo@gmail.com"
+contrasena_correo = "ingesoft2020"
 
 
 def enviar_correo(destino, asunto, mensaje, imagen):
