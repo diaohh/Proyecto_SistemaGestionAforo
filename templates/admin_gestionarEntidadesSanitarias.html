@@ -41,16 +41,22 @@
 							<th>Barrio de entidad</th>
 							<th>Correo de contacto</th>
 							<th>Telefono de contacto</th>
+							<th></th>
 						</tr>
 						{% for entidad in entidades %}
 							<tr>
+								<form action="/gestionar-entidades-sanitarias/" method="POST">
+								<input type="hidden" name="tipo_id" value="{{entidad[1]}}">
+								<input type="hidden" name="num_id" value="{{entidad[2]}}">
 								<td>{{entidad[1]}}</td>
 								<td>{{entidad[2]}}</td>
-								<td>{{entidad[5]}}</td>
+								<td><input type="text" name="nombre" id="nombre" value="{{entidad[5]}}" style="width: 100%; height: 100%" required></td>
 								<td>{{entidad[10]}}</td>
 								<td>{{entidad[11]}}</td>
-								<td>{{entidad[7]}}</td>
-								<td>{{entidad[8]}}</td>
+								<td><input type="email" name="correo" id="correo" value="{{entidad[7]}}" style="width: 100%; height: 100%" required></td>
+								<td><input type="phone" name="telefono" id="telefono" value="{{entidad[8]}}" style="width: 100%; height: 100%" required></td>
+								<td><button>Actualizar</button></td>
+								</form>
 							</tr>
 						{% endfor %}
 					</table>

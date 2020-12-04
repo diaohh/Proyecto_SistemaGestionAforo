@@ -1020,7 +1020,7 @@ def gestionar_locales():
 	return render_template("admin_gestionarLocales.html",locales=locales,categorias=categorias)
 
 
-@app.route("/gestionar-entidades-sanitarias/")
+@app.route("/gestionar-entidades-sanitarias/",methods=['GET','POST'])
 def gestionar_entidades_sanitarias():
 	"""
 	Retorna la pagina de gestion de entidades de salud
@@ -1028,6 +1028,18 @@ def gestionar_entidades_sanitarias():
 	"""
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
+
+	if request.method == 'POST':
+		bd['entidad_sanitaria'].update_one({
+			'tipo_id':request.form['tipo_id'],
+			'num_id':request.form['num_id']
+		},{
+			'$set':{
+				'nombre':request.form['nombre'],
+				'correo':request.form['correo'],
+				'telefono':request.form['telefono']
+			}
+		})
 
 	entidades = list()
 	for es in bd['entidad_sanitaria'].find({'pendiente':0}):
