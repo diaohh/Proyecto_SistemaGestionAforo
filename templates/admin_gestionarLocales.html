@@ -31,41 +31,17 @@
 		<div class="row">
 			<div class="col-md-1"></div>
 			<div class="col-md-10">
-				<label for="categoria">Categoria del local</label>
-				<select id="categoria" name="categoria" style="width: 15%">
+				<label for="categoria_filtro">Categoria del local</label>
+				<select id="categoria_filtro" name="categoria_filtro" style="width: 15%">
 					<option value="">Seleccione una categoria</option>
 					{% for categoria in categorias %}
 						<option value="{{categoria}}">{{categoria}}</option>
 					{% endfor %}
 				</select><br><br>
+				
 				<div style="height: 620px ;overflow: auto;">
-					<table id="users_data" cellspacing="0" cellpadding="1" border="1">
-						<tr>
-							<th>Tipo de identificacion</th>
-							<th>Numero de identificacion</th>
-							<th>Nombre de local</th>
-							<th>Municipio de local</th>
-							<th>Barrio de local</th>
-							<th>Correo de contacto</th>
-							<th>Categoria de local</th>
-							<th>Telefono de contacto #1</th>
-							<th>Telefono de contacto #2</th>
-							<th>Telefono de contacto #3</th>
-						</tr>
-						{% for local in locales %}
-							<tr>
-								<td>{{local[1]}}</td>
-								<td>{{local[2]}}</td>
-								<td>{{local[5]}}</td>
-								<td>{{local[13]}}</td>
-								<td>{{local[14]}}</td>
-								<td>{{local[7]}}</td>
-								<td>{{local[8]}}</td>
-								<td>{{local[9]}}</td>
-								<td>{{local[10]}}</td>
-								<td>{{local[11]}}</td>
-							</tr>
-						{% endfor %}
+					<table id="datos_usuarios" cellspacing="0" cellpadding="1" border="1">
+						
 					</table>
 					<div style="text-align-last: center;"><br>
 						<button type="button" onclick="window.location.href='/'">Volver</button><br><br>
@@ -77,55 +53,55 @@
 		</div>
 
 	<script type="text/javascript">
-		var vis = [
-		{% for visita in visitas %}
-			['{{visita[0]}}','{{visita[1]}}','{{visita[2]}}'.split(" "),'{{visita[3]}}','{{visita[4]}}'+'°C','{{visita[5]}}']{% if visita != visitas[-1] %},{% endif %}
+		var loc = [
+		{% for local in locales %}
+			['{{local[1]}}','{{local[2]}}','{{local[5]}}','{{local[13]}}','{{local[14]}}','{{local[7]}}','{{local[8]}}','{{local[9]}}','{{local[10]}}','{{local[11]}}']{% if local != locales[-1] %},{% endif %}
 		{% endfor %}
 		];
 
 		var datos_usuarios = document.getElementById("datos_usuarios");
-		var fecha_filtro = document.getElementById("fecha_filtro");
+		var categoria_filtro = document.getElementById("categoria_filtro");
 		function llenar_tabla(datos){
 			datos_usuarios.innerHTML = `
 			<tr>
-				<th>Tipo de documento</th>
-				<th>Numero de documento</th>
-				<th>Fecha de la visita</th>
-				<th>Hora de la visita</th>
-				<th>llevaba tapabocas</th>
-				<th>temperatura registrada</th>
-				<th>ingresó al local</th>
+				<th>Tipo de identificacion</th>
+				<th>Numero de identificacion</th>
+				<th>Nombre de local</th>
+				<th>Municipio de local</th>
+				<th>Barrio de local</th>
+				<th>Correo de contacto</th>
+				<th>Categoria de local</th>
+				<th>Telefono de contacto #1</th>
+				<th>Telefono de contacto #2</th>
+				<th>Telefono de contacto #3</th>
 			</tr>`;
 			for(var i=0;i<datos.length;i++){
 				datos_usuarios.innerHTML += `
 				<tr>
 					<td>${datos[i][0]}</td>
 					<td>${datos[i][1]}</td>
-					<td>${datos[i][2][0]}</td>
-					<td>${datos[i][2][1]}</td>
+					<td>${datos[i][2]}</td>
 					<td>${datos[i][3]}</td>
 					<td>${datos[i][4]}</td>
 					<td>${datos[i][5]}</td>
+					<td>${datos[i][6]}</td>
+					<td>${datos[i][7]}</td>
+					<td>${datos[i][8]}</td>
+					<td>${datos[i][9]}</td>
 				</tr>`
 			}
 		}
-		llenar_tabla(vis);
+		llenar_tabla(loc);
 
-		fecha_filtro.onchange = function(){
-			var fecha = fecha_filtro.value;
-			var vis_filtrado = [];
-			for(var i=0;i<vis.length;i++){
-				if(vis[i][2][0] == fecha){
-					vis_filtrado.push(vis[i]);
+		categoria_filtro.onchange = function(){
+			var categoria = categoria_filtro.value;
+			var loc_filtrado = [];
+			for(var i=0;i<loc.length;i++){
+				if(!categoria.length || loc[i][6] == categoria){
+					loc_filtrado.push(loc[i]);
 				}
 			}
-			llenar_tabla(vis_filtrado);
-		}
-
-		var limpiar_filtro = document.getElementById("limpiar_filtro");
-		limpiar_filtro.onclick = function(){
-			llenar_tabla(vis);
-			fecha_filtro.value = '';
+			llenar_tabla(loc_filtrado);
 		}
 
 

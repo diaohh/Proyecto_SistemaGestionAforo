@@ -1061,15 +1061,31 @@ def gestionar_usuarios():
 	if 'tipo' not in session or session['tipo'] != 4:
 		return redirect(url_for("index"))
 
+	barrios = set()
+	departamentos = set()
 	usuarios = list()
 	for l in bd['civil'].find({'pendiente':0}):
 		aux = list(l.values())
 		barrio = bd['barrio'].find_one({'id_barrio':aux[9]})
 		aux.append(barrio['municipio'])
 		aux.append(barrio['nombre'])
-		usuarios.append(aux)
+		aux.append('NO')
+		barrios.add(aux[15])
+		departamentos.add(barrio['departamento'])
+		prueba = list()
+		for p in bd['historial_pruebas'].find({'tipo_id_persona':aux[1],'num_id_persona':aux[2]}):  
+			prueba.append((datetime.strptime(p['fechayhora'], '%Y-%m-%d %H:%M:%S'),p['resultado']))
 
-	return render_template("admin_gestionarUsuarios.html",usuarios=usuarios)
+		if len(prueba):
+			prueba = max(prueba, key=lambda x: x[0])
+			#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
+			fecha = prueba[0]
+			fechaMin = datetime.today() - timedelta(days=15)
+			if prueba[1]=='Positivo' and fecha >= fechaMin: aux[16] = 'SI'
+		
+		usuarios.append(aux)
+			
+	return render_template("admin_gestionarUsuarios.html",usuarios=usuarios,barrios=list(barrios),departamentos=list(departamentos))
 
 
 @app.route("/gestionar-visitas/")

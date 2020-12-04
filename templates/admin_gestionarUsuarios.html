@@ -31,36 +31,17 @@
 		<div class="row">
 			<div class="col-md-1"></div>
 			<div class="col-md-10">
+				<label for="filtro_tipo_id">Tipo de documento</label>
+				<select id="filtro_tipo_id" name="filtro_tipo_id" style="width: 12%">
+					<option value="">Tipo de documento</option>
+					<option value="CC">Cedula de ciudadania</option>
+					<option value="TI">Tarjeta de identidad</option>
+					<option value="TE">Tarjeta de extranjeria</option>
+				</select><br><br>
+
 				<div style="height: 620px ;overflow: auto;">
-					<table id="users_data" cellspacing="0" cellpadding="1" border="1">
-						<tr>
-							<th>Tipo de documento</th>
-							<th>Numero de documento</th>
-							<th>Nombres</th>
-							<th>Apellidos</th>
-							<th>Genero</th>
-							<th>Fecha de nacimiento</th>
-							<th>Municipio de residencia</th>
-							<th>Barrio de residencia</th>
-							<th>Direccion de residencia</th>
-							<th>Correo electronico</th>
-							<th>Telefono de contacto</th>
-						</tr>
-						{% for usuario in usuarios %}
-							<tr>
-								<td>{{usuario[1]}}</td>
-								<td>{{usuario[2]}}</td>
-								<td>{{usuario[5]}}</td>
-								<td>{{usuario[6]}}</td>
-								<td>{{usuario[7]}}</td>
-								<td>{{usuario[8]}}</td>
-								<td>{{usuario[14]}}</td>
-								<td>{{usuario[15]}}</td>
-								<td>{{usuario[10]}}</td>
-								<td>{{usuario[11]}}</td>
-								<td>{{usuario[12]}}</td>
-							</tr>
-						{% endfor %}
+					<table id="datos_usuarios" cellspacing="0" cellpadding="1" border="1">
+
 					</table>
 					<div style="text-align-last: center;"><br>
 						<button type="button" onclick="window.location.href='/'">Volver</button><br><br>
@@ -71,5 +52,63 @@
 			<div class="col-md-1"></div>
 		</div>
 
+	<script type="text/javascript">
+		var usr = [
+		{% for usuario in usuarios %}
+			['{{usuario[1]}}','{{usuario[2]}}','{{usuario[5]}}','{{usuario[6]}}','{{usuario[7]}}','{{usuario[8]}}','{{usuario[14]}}','{{usuario[15]}}','{{usuario[10]}}','{{usuario[11]}}','{{usuario[12]}}','{{usuario[16]}}']{% if usuario != usuarios[-1] %},{% endif %}
+		{% endfor %}
+		];
+
+		var datos_usuarios = document.getElementById("datos_usuarios");
+		var filtro_tipo_id = document.getElementById("filtro_tipo_id");
+		function llenar_tabla(datos){
+			datos_usuarios.innerHTML = `
+			<tr>
+				<th>Tipo de documento</th>
+				<th>Numero de documento</th>
+				<th>Nombres</th>
+				<th>Apellidos</th>
+				<th>Genero</th>
+				<th>Fecha de nacimiento</th>
+				<th>Municipio de residencia</th>
+				<th>Barrio de residencia</th>
+				<th>Direccion de residencia</th>
+				<th>Correo electronico</th>
+				<th>Telefono de contacto</th>
+				<th>Contagiado</th>
+			</tr>`;
+			for(var i=0;i<datos.length;i++){
+				datos_usuarios.innerHTML += `
+				<tr>
+					<td>${datos[i][0]}</td>
+					<td>${datos[i][1]}</td>
+					<td>${datos[i][2]}</td>
+					<td>${datos[i][3]}</td>
+					<td>${datos[i][4]}</td>
+					<td>${datos[i][5]}</td>
+					<td>${datos[i][6]}</td>
+					<td>${datos[i][7]}</td>
+					<td>${datos[i][8]}</td>
+					<td>${datos[i][9]}</td>
+					<td>${datos[i][10]}</td>
+					<td>${datos[i][11]}</td>
+				</tr>`
+			}
+		}
+		llenar_tabla(usr);
+
+		filtro_tipo_id.onchange = function(){
+			var tipo = filtro_tipo_id.value;
+			var usr_filtrado = [];
+			for(var i=0;i<usr.length;i++){
+				if(!tipo.length || usr[i][0] == tipo){
+					usr_filtrado.push(usr[i]);
+				}
+			}
+			llenar_tabla(usr_filtrado);
+		}
+
+
+	</script>
 	</body>
 </html>
