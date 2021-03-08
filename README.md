@@ -14,4 +14,6 @@ Librerias de Python usadas:
 - dnspython
 - smtplib
 
+Ejecutar con: "py app.py" para uso local con el URL "http://localhost:8080"
+
 Formato de los codigo QR a leer: TipoDocumento-NumDocumento
