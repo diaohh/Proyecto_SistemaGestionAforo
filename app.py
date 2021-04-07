@@ -29,6 +29,12 @@ from mensajes import *
 #Usado para generar la contraseña aleatoria
 from random import randint,shuffle
 
+#Calculos
+from math import ceil
+
+#Niveles de riesgo
+niveles = ['muy bajo','bajo','medio','alto','muy alto']
+
 #aplicativo flask
 app = Flask(__name__)
 app.secret_key = "jda()/_s8U9??¡!823jeD" 
@@ -97,12 +103,14 @@ def index():
 				visitas.append((comercio[0]['nombre'],visita['fechayhora']))
 
 			fecha = str(fecha)
-			return render_template("usuario.html", visitas=visitas,vigente=vigente,dias=dias,fecha=fecha)
+
+			riesgo = niveles[ceil((bd['civil'].find_one({'tipo_id':session['tipo_id'],'num_id':session['num_id']}))['riesgo']/2)-1]
+			return render_template("usuario.html", visitas=visitas,vigente=vigente,dias=dias,fecha=fecha,riesgo=riesgo)
 		
 		if session["tipo"] == 2:
 			visitas = list()
 			for v in bd['visita'].find({'tipo_id_local':session['tipo_id'], 'num_id_local':session['num_id']}):
-				visitas.append((v['tipo_id_persona'],v['num_id_persona'],v['fechayhora'],v['tapabocas'],v['temperatura'],v['ingreso']))
+				visitas.append((v['tipo_id_persona'],v['num_id_persona'],v['fechayhora'],v['tapabocas'],v['temperatura'],v['ingreso'],(bd['civil'].find_one({'tipo_id':v['tipo_id_persona'],'num_id':v['num_id_persona']})['riesgo'])))
 
 			return render_template("local.html",visitas=visitas)
 
@@ -417,14 +425,25 @@ def registro_usuario():
 		municipio = request.form['municipio']
 		barrio = request.form['barrio']
 		
-		id_barrio = bd['barrio'].find({'nombre':barrio,'municipio':municipio})[0]['id_barrio']
+		barrio_aux = bd['barrio'].find({'nombre':barrio,'municipio':municipio})[0]
+		id_barrio = barrio_aux['id_barrio']
+		riesgo_barrio = barrio_aux['riesgo']
 
 		direccion = request.form['direccion']
 		correo = request.form['correo']
 		telefono = (request.form['telefono'])
 		usuario = request.form['usuario']
 		contrasena = (bcrypt.generate_password_hash(request.form['contrasena'].encode('utf-8'))).decode('utf-8')
-		
+
+		edad = ((datetime.now() - datetime.strptime(nacimiento, '%Y-%m-%d')).days)//365
+		riesgo_edad = 0
+		if 14<=edad<=19 or 30<=edad<=35: riesgo_edad = 1
+		elif 20<=edad<=30: riesgo_edad = 2
+		elif edad >= 60: riesgo_edad = -1
+		riesgo = min(max(riesgo_barrio + riesgo_edad,1),10)
+		if riesgo < 1: riesgo = 1
+		elif riesgo >10: riesgo = 10
+
 		bd['civil'].insert_one({
 			'tipo_id':tipo_id,
 			'num_id': num_id,
@@ -438,7 +457,8 @@ def registro_usuario():
 			'direccion':direccion,
 			'correo':correo,
 			'telefono':telefono,
-			'pendiente':1
+			'pendiente':1,
+			'riesgo':riesgo
 		})
 		flash('registro')
 		return redirect(url_for("index"))
@@ -887,7 +907,6 @@ def local_destiempo():
 
 		permitido = 1
 		tapabocas = 'SI'
-		print(request.form)
 		if 'tapabocas' not in request.form:
 			permitido = 0
 			tapabocas = 'NO'
@@ -1176,7 +1195,8 @@ def gestionar_barrios():
 				'id_barrio':request.form['id_barrio1'],
 				'nombre': request.form['nombre'],
 				'municipio': request.form['municipio'],
-				'departamento':request.form['departamento']
+				'departamento':request.form['departamento'],
+				'riesgo':int(request.form['riesgo1'])
 				})
 			else:
 				flash('no_id')
@@ -1190,8 +1210,11 @@ def gestionar_barrios():
 	for d in bd['departamento'].find({}): departamentos.append(d['nombre'])
 
 	barrios = list()
-	for b in bd['barrio'].find({}): barrios.append(list(b.values()))
-	
+	for b in bd['barrio'].find({}):
+		barrio_aux = list(b.values())
+		barrio_aux[5] = niveles[ceil(barrio_aux[5]/2)-1]
+		barrios.append(barrio_aux)
+
 	departamentos.sort()
 	return render_template("admin_gestionarBarrios.html",barrios=barrios, departamentos=departamentos)
 

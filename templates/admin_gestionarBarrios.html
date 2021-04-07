@@ -38,6 +38,7 @@
 							<th>Barrio</th>
 							<th>Municipio</th>
 							<th>Departamento</th>
+							<th>Riesgo de contagio</th>
 						</tr>
 						{% for barrio in barrios %}
 							<tr>
@@ -45,6 +46,7 @@
 								<td>{{barrio[2]}}</td>
 								<td>{{barrio[3]}}</td>
 								<td>{{barrio[4]}}</td>
+								<td>{{barrio[5]}}</td>
 							</tr>
 						{% endfor %}
 					</table>
@@ -64,6 +66,16 @@
 					<label for="municipio">Municipio</label>
 					<select id="municipio" name="municipio">
 					</select><br>
+					
+					<label for="riesgo1">Riesgo de contagio</label>
+					<select id="riesgo1" name="riesgo1">
+						<option value="1">Muy bajo</option>
+						<option value="2">Bajo</option>
+						<option value="3">Medio</option>
+						<option value="4">Alto</option>
+						<option value="5">Muy alto</option>
+					</select><br>
+					
 					<input type="text" id="nombre" name="nombre" placeholder="Nombre del barrio" required><br>
 					<br><button>Añadir barrio</button>
 				</form>
