@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="es" xml:lang="es">
 	<head>
 		<meta charset="UTF-8">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
@@ -14,7 +14,7 @@
 			<div class="row">
 				<div class="col-md-1"></div>
 				<div class="col-md-7">
-					<img src="{{url_for('static',filename='imgs/logo3.png')}}" class="logo">
+					<img src="{{url_for('static',filename='imgs/logo3.png')}}" alt="logo del sistema" class="logo">
 				</div>
 				<div class="col-md-1"></div>
 				<div class="col-md-3">
@@ -33,8 +33,9 @@
 			<div class="col-md-7">
 				<div style="height: 620px ;overflow: auto;">
 					<table id="users_data" cellspacing="0" cellpadding="1" border="1">
+						<caption>Tabla de categorias registrados</caption>
 						<tr>
-							<th>Nombre</th>
+							<th scope="col">Nombre</th>
 						</tr>
 						{% for categoria in categorias %}
 							<tr>
@@ -73,7 +74,7 @@
 				{% if m == 'no_nombre' %}
 					<div id="popup_registro" class="bloquear">
 						<div class="contenido">
-							<h3><b>Error en el registro</b></h3><br>
+							<h3><strong>Error en el registro</strong></h3><br>
 							<p>
 							Se ha producido un error en el registro de
 							la categoria, el nombre ingresado ya se 
@@ -85,7 +86,7 @@
 				{% elif m == 'no_nombre_elim' %}
 					<div id="popup_registro" class="bloquear">
 						<div class="contenido">
-							<h3><b>Error en la eliminacion</b></h3><br>
+							<h3><strong>Error en la eliminacion</strong></h3><br>
 							<p>
 							Se ha producido un error en la eliminacion
 							de la categoria, el ID ingresado no se e
