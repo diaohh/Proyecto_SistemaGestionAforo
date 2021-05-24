@@ -570,9 +570,6 @@ def registro_entidad_salud():
 		flash('registro')
 		return redirect(url_for("index"))
 
-	return render_template("entidad_sanitaria_registro.html")
-
-
 @app.route("/recuperar-contrasena/",methods=["GET","POST"])
 def recuperar_contrasena():
 	if'tipo' in session:
