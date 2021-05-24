@@ -438,7 +438,7 @@ def registro_usuario():
 		edad = ((datetime.now() - datetime.strptime(nacimiento, '%Y-%m-%d')).days)//365
 		riesgo_edad = 0
 		if 14<=edad<=19 or 30<=edad<=35: riesgo_edad = 1
-		elif 20<=edad<=30: riesgo_edad = 2
+		elif 20<=edad<30: riesgo_edad = 2
 		elif edad >= 60: riesgo_edad = -1
 		riesgo = min(max(riesgo_barrio + riesgo_edad,1),10)
 		if riesgo < 1: riesgo = 1
