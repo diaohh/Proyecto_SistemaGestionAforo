@@ -66,18 +66,20 @@ def enviar_correo(destino, asunto, mensaje, imagen):
 		smtp.send_message(msj)
 
 def calculo_riesgo_local(acum_riesgo_fechas):
-	acum = 0
+	acum,promedio_dia = 0,0
 	for riesgo_dia,personas_dia in acum_riesgo_fechas.values():
+		promedio_dia = (riesgo_dia/personas_dia)
+		
 		if personas_dia >= 100: 
-			riesgo_dia += 3
+			promedio_dia += 3
 		elif personas_dia >= 50:
-			riesgo_dia += 2
+			promedio_dia += 2
 		elif personas_dia >= 10:
-			riesgo_dia += 1
+			promedio_dia += 1
 		elif personas_dia <= 5:
-			riesgo_dia -= 1
+			promedio_dia -= 1
 
-		acum += (min(max(riesgo_dia,1),10)/personas_dia) 
+		acum += min(max(promedio_dia,1),10) 
 
 	return acum/len(acum_riesgo_fechas)
 
@@ -435,8 +437,6 @@ def calculo_riesgo_registro(riesgo_barrio,edad):
 	elif 20<=edad<30: riesgo_edad = 2
 	elif edad >= 60: riesgo_edad = -1
 	riesgo = min(max(riesgo_barrio + riesgo_edad,1),10)
-	if riesgo < 1: riesgo = 1
-	elif riesgo >10: riesgo = 10
 
 	return riesgo
 
