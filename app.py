@@ -72,17 +72,17 @@ def calculo_riesgo_local(acum_riesgo_fechas):
 		
 		if personas_dia >= 100: 
 			promedio_dia += 3
-		elif personas_dia >= 50:
+		elif  100 > personas_dia >= 50:
 			promedio_dia += 2
-		elif personas_dia >= 10:
+		elif 50 > personas_dia >= 10:
 			promedio_dia += 1
-		elif personas_dia <= 5:
+		elif 0 <= personas_dia < 10:
 			promedio_dia -= 1
 
 		acum += min(max(promedio_dia,1),10) 
 
 	return acum/len(acum_riesgo_fechas)
-
+	
 @app.route("/")
 def index():
 	"""
