@@ -1098,9 +1098,9 @@ def gestionar_usuarios():
 		aux.append(barrio['municipio'])
 		aux.append(barrio['nombre'])
 		aux.append(barrio['departamento'])
-		aux.append('NO')
-		barrios.add(aux[15])
-		departamentos.add(aux[16])
+		aux.append('No')
+		barrios.add(aux[16])
+		departamentos.add(aux[17])
 		prueba = list()
 		for p in bd['historial_pruebas'].find({'tipo_id_persona':aux[1],'num_id_persona':aux[2]}):  
 			prueba.append((datetime.strptime(p['fechayhora'], '%Y-%m-%d %H:%M:%S'),p['resultado']))
@@ -1110,7 +1110,7 @@ def gestionar_usuarios():
 			#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
 			fecha = prueba[0]
 			fechaMin = datetime.today() - timedelta(days=15)
-			if prueba[1]=='Positivo' and fecha >= fechaMin: aux[17] = 'SI'
+			if prueba[1]=='Positivo' and fecha >= fechaMin: aux[18] = 'Si'
 		
 		usuarios.append(aux)
 			
