@@ -33,7 +33,7 @@
 				<label><strong>Filtrar fecha de la visita:</strong></label>
 				<input type="date" id="fecha_filtro" name="fecha_filtro" style="width: 200px">
 				<button type="button" id="limpiar_filtro">Limpiar filtro</button>
-				<label id="label_riesgo"></label>
+				<label id="label_riesgo">El riesgo promedio por dia es: <strong>{{riesgo}}</strong></label>
 				<div style="height: 620px ;overflow: auto;">
 					<table id="datos_usuarios" cellspacing="0" cellpadding="1" border="1">
 						<caption>Tabla de administradores registrados</caption>
@@ -89,23 +89,10 @@
 	<script type="text/javascript">
 		var vis = [
 		{% for visita in visitas %}
-			['{{visita[0]}}','{{visita[1]}}','{{visita[2]}}'.split(" "),'{{visita[3]}}','{{visita[4]}}'+'°C','{{visita[5]}}',{{visita[6]}}]{% if visita != visitas[-1] %},{% endif %}
+			['{{visita[0]}}','{{visita[1]}}','{{visita[2]}}'.split(" "),'{{visita[3]}}','{{visita[4]}}'+'°C','{{visita[5]}}']{% if visita != visitas[-1] %},{% endif %}
 		{% endfor %}
 		];
-		var niveles = ['muy bajo','bajo','medio','alto','muy alto']
-
-		var label_riesgo = document.getElementById("label_riesgo");
-		var acum,riesgo;
-		function actualizar_riesgo(datos){
-			acum = 0;
-			for(var i=0;i<datos.length;i++){
-				acum += datos[i][6];
-			}
-			riesgo = niveles[Math.ceil(Math.floor(acum/datos.length)/2)-1];
-			label_riesgo.innerHTML = 'El riesgo de contagio con las visitas es <b>'+ riesgo +'</b>';
-			if(datos.length == 0) label_riesgo.innerHTML = '<b>No</b> hay suficientes visitas para calcular el riesgo de contagio';
-
-		}
+		
 
 		var datos_usuarios = document.getElementById("datos_usuarios");
 		var fecha_filtro = document.getElementById("fecha_filtro");
@@ -132,7 +119,6 @@
 					<td>${datos[i][5]}</td>
 				</tr>`
 			}
-			actualizar_riesgo(datos);
 		}
 		llenar_tabla(vis);
 

@@ -65,6 +65,21 @@ def enviar_correo(destino, asunto, mensaje, imagen):
 		smtp.login(usuario_correo,contrasena_correo)
 		smtp.send_message(msj)
 
+def calculo_riesgo_local(acum_riesgo_fechas):
+	acum = 0
+	for riesgo_dia,personas_dia in acum_riesgo_fechas.values():
+		if personas_dia >= 100: 
+			riesgo_dia += 3
+		elif personas_dia >= 50:
+			riesgo_dia += 2
+		elif personas_dia >= 10:
+			riesgo_dia += 1
+		elif personas_dia <= 5:
+			riesgo_dia -= 1
+
+		acum += (min(max(riesgo_dia,1),10)/personas_dia) 
+
+	return acum/len(acum_riesgo_fechas)
 
 @app.route("/")
 def index():
@@ -112,7 +127,18 @@ def index():
 			for v in bd['visita'].find({'tipo_id_local':session['tipo_id'], 'num_id_local':session['num_id']}):
 				visitas.append((v['tipo_id_persona'],v['num_id_persona'],v['fechayhora'],v['tapabocas'],v['temperatura'],v['ingreso'],(bd['civil'].find_one({'tipo_id':v['tipo_id_persona'],'num_id':v['num_id_persona']})['riesgo'])))
 
-			return render_template("local.html",visitas=visitas)
+			acum_riesgo_fechas = dict()
+			for vis in visitas:
+				aux = str(vis[2])[:10] 
+				if aux not in acum_riesgo_fechas:
+					acum_riesgo_fechas[aux] = [vis[6],1]
+				else:
+					acum_riesgo_fechas[aux][0] += vis[6]
+					acum_riesgo_fechas[aux][1] += 1
+
+			riesgo = niveles[ceil(calculo_riesgo_local(acum_riesgo_fechas)/2)-1]
+
+			return render_template("local.html",visitas=visitas,riesgo=riesgo)
 
 		if session["tipo"] == 3:
 			pruebas = list()
