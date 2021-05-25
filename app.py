@@ -398,6 +398,21 @@ def cerrar_sesion():
 	session.clear()
 	return redirect(url_for("index"))
 
+def calculo_riesgo_registro(riesgo_barrio,edad):
+	"""
+	Retorna el calculo del riesgo para el registro
+	de usuarios dependiendo del riesgo del barrio
+	en el que vive y su edad.
+	"""
+	riesgo_edad = 0
+	if 14<=edad<=19 or 30<=edad<=35: riesgo_edad = 1
+	elif 20<=edad<30: riesgo_edad = 2
+	elif edad >= 60: riesgo_edad = -1
+	riesgo = min(max(riesgo_barrio + riesgo_edad,1),10)
+	if riesgo < 1: riesgo = 1
+	elif riesgo >10: riesgo = 10
+
+	return riesgo
 
 @app.route("/registro-usuario/",methods=["GET","POST"])
 def registro_usuario():
@@ -436,13 +451,8 @@ def registro_usuario():
 		contrasena = (bcrypt.generate_password_hash(request.form['contrasena'].encode('utf-8'))).decode('utf-8')
 
 		edad = ((datetime.now() - datetime.strptime(nacimiento, '%Y-%m-%d')).days)//365
-		riesgo_edad = 0
-		if 14<=edad<=19 or 30<=edad<=35: riesgo_edad = 1
-		elif 20<=edad<30: riesgo_edad = 2
-		elif edad >= 60: riesgo_edad = -1
-		riesgo = min(max(riesgo_barrio + riesgo_edad,1),10)
-		if riesgo < 1: riesgo = 1
-		elif riesgo >10: riesgo = 10
+
+		riesgo = calculo_riesgo_registro(riesgo_barrio,edad)
 
 		bd['civil'].insert_one({
 			'tipo_id':tipo_id,
