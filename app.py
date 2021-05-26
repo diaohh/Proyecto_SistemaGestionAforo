@@ -61,9 +61,16 @@ def enviar_correo(destino, asunto, mensaje, imagen):
 			nombre = img.name
 		msj.add_attachment(archivo,maintype='image',subtype='png',filename="Codigo_QR.png")
 
+	"""
 	with smtplib.SMTP_SSL('smtp.gmail.com',465) as smtp:
 		smtp.login(usuario_correo,contrasena_correo)
 		smtp.send_message(msj)
+	"""
+	server = smtplib.SMTP('smtp.gmail.com',587)
+	server.starttls()
+	server.login(usuario_correo,contrasena_correo)
+	server.sendmail(usuario_correo,destino,msj)
+
 
 def calculo_riesgo_local(acum_riesgo_fechas):
 	acum,promedio_dia = 0,0
