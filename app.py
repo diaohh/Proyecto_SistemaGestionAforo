@@ -44,8 +44,8 @@ bcrypt = Bcrypt(app)
 cliente = MongoClient("mongodb+srv://admin19:admin19@dbcov19.0ih7g.mongodb.net/DBCOV19?retryWrites=true&w=majority")
 bd = cliente['projectdb']
 
-usuario_correo = "sistemadegestionyaforo@gmail.com"
-contrasena_correo = "ingesoft2020"
+usuario_correo = "sistemadegestionyaforo1@gmail.com"
+contrasena_correo = "ingesoft2021"
 
 
 def enviar_correo(destino, asunto, mensaje, imagen):
