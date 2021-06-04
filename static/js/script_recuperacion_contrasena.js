@@ -111,7 +111,7 @@ municipio2.onchange = function(){ actualizarBarrios2(); }
 var departamento3 = document.getElementById("departamento3")
 var municipio3 = document.getElementById("municipio3")
 function actualizarMuns3(){
-	dep = departamento3.value;
+	var dep = departamento3.value;
 	fetch('/muns/'+dep).then(function(aux){
 		aux.json().then(function(muns){
 			muns.municipios.sort();
@@ -127,7 +127,7 @@ departamento3.onchange = function(){ actualizarMuns3(); }
 
 var barrio3 = document.getElementById("barrio3")
 function actualizarBarrios3(){
-	mun = municipio3.value;
+	var mun = municipio3.value;
 	fetch('/barrios/'+mun).then(function(aux){
 		aux.json().then(function(bars){
 			bars.barrios.sort();
