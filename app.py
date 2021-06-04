@@ -116,10 +116,10 @@ def index():
 				prueba = max(prueba, key=lambda x: x[0])
 				#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
 				fecha = prueba[0]
-				fecha_Min = datetime.today() - timedelta(days=15)
-				if prueba[1]=='Positivo' and fecha >= fecha_Min: vigente = 1
-				if prueba[1]=='Ninguno' and fecha >= fecha_Min: vigente = 2
-				dias = (fecha - fecha_Min).days
+				fecha_min = datetime.today() - timedelta(days=15)
+				if prueba[1]=='Positivo' and fecha >= fecha_min: vigente = 1
+				if prueba[1]=='Ninguno' and fecha >= fecha_min: vigente = 2
+				dias = (fecha - fecha_min).days
 
 			visitas_aux = bd['visita']
 			visitas_aux = visitas_aux.find({"ingreso":"SI","tipo_id_persona":session['tipo_id'], "num_id_persona":session['num_id']})
@@ -810,7 +810,7 @@ def obtener_usuarios(usr):
 
 
 @app.route("/local-QR/",methods=["GET","POST"])
-def local_Qr():
+def local_qr():
 	"""
 	Retorna la pagina para inscripcion por codigo QR
 	para el usuario local.
@@ -840,8 +840,8 @@ def local_Qr():
 			prueba = max(prueba, key=lambda x: x[0])
 			#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
 			fecha = prueba[0]
-			fecha_Min = datetime.today() - timedelta(days=15)
-			if prueba[1]!='Negativo' and fecha >= fecha_Min: permitido = 0
+			fecha_min = datetime.today() - timedelta(days=15)
+			if prueba[1]!='Negativo' and fecha >= fecha_min: permitido = 0
 
 		tapabocas = 'SI'
 		if 'tapabocas' not in request.form:
@@ -870,7 +870,7 @@ def local_Qr():
 
 
 @app.route("/local-no-QR/",methods=["GET","POST"])
-def local_no_Qr():
+def local_no_qr():
 	"""
 	Retorna la pagina para inscripcion sin codigo QR
 	para el usuario local.
@@ -896,8 +896,8 @@ def local_no_Qr():
 			prueba = max(prueba, key=lambda x: x[0])
 			#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
 			fecha = prueba[0]
-			fecha_Min = datetime.today() - timedelta(days=15)
-			if prueba[1]!='Negativo' and fecha >= fecha_Min: permitido = 0
+			fecha_min = datetime.today() - timedelta(days=15)
+			if prueba[1]!='Negativo' and fecha >= fecha_min: permitido = 0
 
 		tapabocas = 'SI'
 		if 'tapabocas' not in request.form:
@@ -1150,8 +1150,8 @@ def gestionar_usuarios():
 			prueba = max(prueba, key=lambda x: x[0])
 			#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
 			fecha = prueba[0]
-			fecha_Min = datetime.today() - timedelta(days=15)
-			if prueba[1]=='Positivo' and fecha >= fecha_Min: aux[18] = 'Si'
+			fecha_min = datetime.today() - timedelta(days=15)
+			if prueba[1]=='Positivo' and fecha >= fecha_min: aux[18] = 'Si'
 		
 		usuarios.append(aux)
 			
