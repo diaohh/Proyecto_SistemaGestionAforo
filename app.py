@@ -1,5 +1,5 @@
 #Framework usado: Flask
-from flask import Flask, render_template, redirect, url_for, request, jsonify, flash, session
+from flask import Flask, render_template, redirect, url_for, request, jsonify, flash, session, current_app
 from flask_bcrypt import Bcrypt
 
 #Analisis de imagenes con codigos QR
@@ -65,7 +65,7 @@ def enviar_correo(destino, asunto, mensaje, imagen):
 	msj.set_content(mensaje)
 
 	if len(imagen):
-		with open(imagen,'rb') as img:
+		with current_app.open_resource('QRs/'+imagen+'.png') as img:
 			archivo = img.read()
 		msj.add_attachment(archivo,maintype='image',subtype='png',filename="Codigo_QR.png")
 
@@ -1306,7 +1306,7 @@ def gestionar_solicitudes_registro_civil():
 			enviar_correo(correo,
 				string_solicitud_creacion,
 				mensajes.mensaje_aprobacion_civil.format(nombre),
-				'QRs/'+tipo_id+'-'+num_id+'.png'
+				tipo_id+'-'+num_id
 			)
 
 			bd['civil'].update_one({
