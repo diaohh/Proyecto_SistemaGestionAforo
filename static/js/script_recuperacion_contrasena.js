@@ -1,9 +1,9 @@
-seleccion1 = document.getElementById("usuario_sel");
-seleccion2 = document.getElementById("local_sel");
-seleccion3 = document.getElementById("entidad_sanitaria_sel");
-form_usuario = document.getElementById("form_usuario");
-form_local = document.getElementById("form_local");
-form_entidad_sanitaria = document.getElementById("form_entidad_sanitaria");
+var seleccion1 = document.getElementById("usuario_sel");
+var seleccion2 = document.getElementById("local_sel");
+var seleccion3 = document.getElementById("entidad_sanitaria_sel");
+var form_usuario = document.getElementById("form_usuario");
+var form_local = document.getElementById("form_local");
+var form_entidad_sanitaria = document.getElementById("form_entidad_sanitaria");
 
 seleccion1.onclick = function() {
 	form_usuario.style.display = "inline";
@@ -43,7 +43,7 @@ function actualizar_telefonos(selection){
 var departamento1 = document.getElementById("departamento1")
 var municipio1 = document.getElementById("municipio1")
 function actualizarMuns1(){
-	dep = departamento1.value;
+	var dep = departamento1.value;
 	fetch('/muns/'+dep).then(function(aux){
 		aux.json().then(function(muns){
 			muns.municipios.sort();
@@ -59,7 +59,7 @@ departamento1.onchange = function(){ actualizarMuns1(); }
 
 var barrio1 = document.getElementById("barrio1")
 function actualizarBarrios1(){
-	mun = municipio1.value;
+	var mun = municipio1.value;
 	fetch('/barrios/'+mun).then(function(aux){
 		aux.json().then(function(bars){
 			bars.barrios.sort();

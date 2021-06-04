@@ -34,14 +34,14 @@ contrasena.onkeyup = function() {
 		letra.innerHTML = "";
 	}
 
-	simbolos = contrasena.value.match(/[-_!=+?¿!¡]/g)
+	var simbolos = contrasena.value.match(/[-_!=+?¿!¡]/g)
 	if(simbolos){
 		caracter.innerHTML = "- <span>&#10003;</span>";
 	}else{
 		caracter.innerHTML = "";
 	}
 
-	largo = contrasena.value.length > 9;
+	var largo = contrasena.value.length > 9;
 	if(largo){
 		longitud.innerHTML = "- <span>&#10003;</span>";
 	}else{
@@ -76,8 +76,8 @@ var label_num_doc = document.getElementById("label_num_doc");
 var tipo_id = document.getElementById("tipo_id");
 var num_id = document.getElementById("num_id");
 num_id.onblur = function(){
-	num = num_id.value;
-	tip = tipo_id.value;
+	var num = num_id.value;
+	var tip = tipo_id.value;
 	if(num.length && num.match(/[0-9]/g)){
 		fetch('/id/'+tipo_usuario+'/'+tip+'/'+num).then(function(aux){
 			aux.json().then(function(doc){
@@ -96,7 +96,7 @@ num_id.onblur = function(){
 var departamento = document.getElementById("departamento")
 var municipio = document.getElementById("municipio")
 function actualizarMuns(){
-	dep = departamento.value;
+	var dep = departamento.value;
 	fetch('/muns/'+dep).then(function(aux){
 		aux.json().then(function(muns){
 			muns.municipios.sort();
@@ -112,7 +112,7 @@ departamento.onchange = function(){ actualizarMuns(); }
 
 var barrio = document.getElementById("barrio")
 function actualizarBarrios(){
-	mun = municipio.value;
+	var mun = municipio.value;
 	fetch('/barrios/'+mun).then(function(aux){
 		aux.json().then(function(bars){
 			bars.barrios.sort();
@@ -129,7 +129,7 @@ municipio.onchange = function(){ actualizarBarrios(); }
 var label_usuario = document.getElementById("label_usuario");
 var usuario = document.getElementById("usuario");
 usuario.onblur = function(){
-	usr = usuario.value;
+	var usr = usuario.value;
 	if(usr.length){
 		fetch('/user/'+usr).then(function(aux){
 			aux.json().then(function(usrs){

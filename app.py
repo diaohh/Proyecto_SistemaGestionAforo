@@ -24,7 +24,7 @@ from email.message import EmailMessage
 import smtplib
 
 #Mensajes predefinidos de respuesta automatica
-from mensajes import *
+import mensajes
 
 #Usado para generar la contraseña aleatoria
 from random import randint,shuffle
@@ -35,6 +35,15 @@ from math import ceil
 #Niveles de riesgo
 niveles = ['muy bajo','bajo','medio','alto','muy alto']
 
+#Formato de fecha
+formato_fecha = '%Y-%m-%d %H:%M:%S'
+
+#Cadenas
+string_inicio_sesion = "inicio_de_sesion.html"
+string_solicitud_creacion = "Solicitud de creacion de cuenta"
+string_solicitud_mod = "Solicitud de modificacion de cuenta"
+string_solicitud_recuperacion = "Solicitud de recuperacion de contraseña"
+
 #aplicativo flask
 app = Flask(__name__)
 app.secret_key = "jda()/_s8U9??¡!823jeD" 
@@ -44,8 +53,8 @@ bcrypt = Bcrypt(app)
 cliente = MongoClient("mongodb+srv://admin19:admin19@dbcov19.0ih7g.mongodb.net/DBCOV19?retryWrites=true&w=majority")
 bd = cliente['projectdb']
 
-usuario_correo = "sistemadegestionyaforo1@gmail.com"
-contrasena_correo = "ingesoft2021"
+usuario_correo = "sistemadegestionyaforo@gmail.com"
+contrasena_correo = "ingesoft2020"
 
 
 def enviar_correo(destino, asunto, mensaje, imagen):
@@ -58,18 +67,11 @@ def enviar_correo(destino, asunto, mensaje, imagen):
 	if len(imagen):
 		with open(imagen,'rb') as img:
 			archivo = img.read()
-			nombre = img.name
 		msj.add_attachment(archivo,maintype='image',subtype='png',filename="Codigo_QR.png")
 
-	"""
 	with smtplib.SMTP_SSL('smtp.gmail.com',465) as smtp:
 		smtp.login(usuario_correo,contrasena_correo)
 		smtp.send_message(msj)
-	"""
-	server = smtplib.SMTP('smtp.gmail.com',587)
-	server.starttls()
-	server.login(usuario_correo,contrasena_correo)
-	server.sendmail(usuario_correo,destino,msj)
 
 
 def calculo_riesgo_local(acum_riesgo_fechas):
@@ -105,7 +107,7 @@ def index():
 
 			prueba = list()
 			for p in bd['historial_pruebas'].find({'tipo_id_persona':session['tipo_id'],'num_id_persona':session['num_id']}):  
-				prueba.append((datetime.strptime(p['fechayhora'], '%Y-%m-%d %H:%M:%S'),p['resultado']))
+				prueba.append((datetime.strptime(p['fechayhora'], formato_fecha),p['resultado']))
 
 			fecha = None
 			dias = 0
@@ -114,10 +116,10 @@ def index():
 				prueba = max(prueba, key=lambda x: x[0])
 				#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
 				fecha = prueba[0]
-				fechaMin = datetime.today() - timedelta(days=15)
-				if prueba[1]=='Positivo' and fecha >= fechaMin: vigente = 1
-				if prueba[1]=='Ninguno' and fecha >= fechaMin: vigente = 2
-				dias = (fecha - fechaMin).days
+				fecha_Min = datetime.today() - timedelta(days=15)
+				if prueba[1]=='Positivo' and fecha >= fecha_Min: vigente = 1
+				if prueba[1]=='Ninguno' and fecha >= fecha_Min: vigente = 2
+				dias = (fecha - fecha_Min).days
 
 			visitas_aux = bd['visita']
 			visitas_aux = visitas_aux.find({"ingreso":"SI","tipo_id_persona":session['tipo_id'], "num_id_persona":session['num_id']})
@@ -186,60 +188,56 @@ def inicio_sesion():
 	
 	if request.method =='GET':
 		if 'tipo' not in session:
-			return render_template("inicio_de_sesion.html")
+			return render_template(string_inicio_sesion)
 		else:
 			return redirect(url_for("index"))
 	else: 
 		usuario = request.form['usuario']
 		contrasena = request.form['contrasena']
-		tipo_cuenta = 0 # 1: Civil, 2: Comercio, 3: Entidad Sanitaria, 4: admin
+		#Tipos de cuenta: 1: Civil, 2: Comercio, 3: Entidad Sanitaria, 4: admin
 
 		session.clear()
 		usuario_bd = bd['civil'].find_one({'usuario':usuario})
-		if usuario_bd:
-			if bcrypt.check_password_hash(usuario_bd['contrasena'].encode('utf-8'),contrasena.encode('utf-8')):
-				if usuario_bd['pendiente'] == 1:
-					flash('pendiente')
-					return render_template("inicio_de_sesion.html")
-				else:
-					session['usuario'] = usuario
-					session['tipo'] = 1
-					session['tipo_id'] = usuario_bd['tipo_id']
-					session['num_id'] = usuario_bd['num_id']
+		if usuario_bd and bcrypt.check_password_hash(usuario_bd['contrasena'].encode('utf-8'),contrasena.encode('utf-8')):
+			if usuario_bd['pendiente'] == 1:
+				flash('pendiente')
+				return render_template(string_inicio_sesion)
+			else:
+				session['usuario'] = usuario
+				session['tipo'] = 1
+				session['tipo_id'] = usuario_bd['tipo_id']
+				session['num_id'] = usuario_bd['num_id']
 		
 		usuario_bd = bd['comercio'].find_one({'usuario':usuario})
-		if usuario_bd:
-			if bcrypt.check_password_hash(usuario_bd['contrasena'].encode('utf-8'),contrasena.encode('utf-8')):
-				if usuario_bd['pendiente'] == 1:
-					flash('pendiente')
-					return render_template("inicio_de_sesion.html")
-				else:
-					session['usuario'] = usuario
-					session['tipo'] = 2
-					session['tipo_id'] = usuario_bd['tipo_id']
-					session['num_id'] = usuario_bd['num_id']
+		if usuario_bd and bcrypt.check_password_hash(usuario_bd['contrasena'].encode('utf-8'),contrasena.encode('utf-8')):
+			if usuario_bd['pendiente'] == 1:
+				flash('pendiente')
+				return render_template(string_inicio_sesion)
+			else:
+				session['usuario'] = usuario
+				session['tipo'] = 2
+				session['tipo_id'] = usuario_bd['tipo_id']
+				session['num_id'] = usuario_bd['num_id']
 		
 		usuario_bd = bd['entidad_sanitaria'].find_one({'usuario':usuario})
-		if usuario_bd:
-			if bcrypt.check_password_hash(usuario_bd['contrasena'].encode('utf-8'),contrasena.encode('utf-8')):
-				if usuario_bd['pendiente'] == 1:
-					flash('pendiente')
-					return render_template("inicio_de_sesion.html")
-				else:
-					session['usuario'] = usuario
-					session['tipo'] = 3
-					session['tipo_id'] = usuario_bd['tipo_id']
-					session['num_id'] = usuario_bd['num_id']
+		if usuario_bd and bcrypt.check_password_hash(usuario_bd['contrasena'].encode('utf-8'),contrasena.encode('utf-8')):
+			if usuario_bd['pendiente'] == 1:
+				flash('pendiente')
+				return render_template(string_inicio_sesion)
+			else:
+				session['usuario'] = usuario
+				session['tipo'] = 3
+				session['tipo_id'] = usuario_bd['tipo_id']
+				session['num_id'] = usuario_bd['num_id']
 		
 		usuario_bd = bd['administrador'].find_one({'usuario':usuario})
-		if usuario_bd:
-			if usuario_bd['contrasena'] == contrasena:
-				session['usuario'] = usuario
-				session['tipo'] = 4
+		if usuario_bd and usuario_bd['contrasena'] == contrasena:
+			session['usuario'] = usuario
+			session['tipo'] = 4
 
 		if len(session): return redirect(url_for("index"))
 		flash('incorrecto')
-		return render_template("inicio_de_sesion.html")
+		return render_template(string_inicio_sesion)
 
 
 @app.route("/mi-cuenta/",methods=["GET","POST"])
@@ -812,7 +810,7 @@ def obtener_usuarios(usr):
 
 
 @app.route("/local-QR/",methods=["GET","POST"])
-def local_QR():
+def local_Qr():
 	"""
 	Retorna la pagina para inscripcion por codigo QR
 	para el usuario local.
@@ -835,15 +833,15 @@ def local_QR():
 		
 		prueba = list()
 		for p in bd['historial_pruebas'].find({'tipo_id_persona':tipo_id,'num_id_persona':num_id}):  
-			prueba.append((datetime.strptime(p['fechayhora'], '%Y-%m-%d %H:%M:%S'),p['resultado']))
+			prueba.append((datetime.strptime(p['fechayhora'], formato_fecha),p['resultado']))
 
 		permitido = 1
 		if len(prueba):
 			prueba = max(prueba, key=lambda x: x[0])
 			#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
 			fecha = prueba[0]
-			fechaMin = datetime.today() - timedelta(days=15)
-			if prueba[1]!='Negativo' and fecha >= fechaMin: permitido = 0
+			fecha_Min = datetime.today() - timedelta(days=15)
+			if prueba[1]!='Negativo' and fecha >= fecha_Min: permitido = 0
 
 		tapabocas = 'SI'
 		if 'tapabocas' not in request.form:
@@ -855,7 +853,7 @@ def local_QR():
 		if permitido: ingreso = 'SI'
 		else: ingreso = 'NO'
 
-		fechayhora = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
+		fechayhora = datetime.fromtimestamp(time()).strftime(formato_fecha)
 		bd['visita'].insert_one({
 			'tipo_id_persona':tipo_id,
 			'num_id_persona': num_id,
@@ -872,7 +870,7 @@ def local_QR():
 
 
 @app.route("/local-no-QR/",methods=["GET","POST"])
-def local_no_QR():
+def local_no_Qr():
 	"""
 	Retorna la pagina para inscripcion sin codigo QR
 	para el usuario local.
@@ -891,15 +889,15 @@ def local_no_QR():
 
 		prueba = list()
 		for p in bd['historial_pruebas'].find({'tipo_id_persona':tipo_id,'num_id_persona':num_id}):  
-			prueba.append((datetime.strptime(p['fechayhora'], '%Y-%m-%d %H:%M:%S'),p['resultado']))
+			prueba.append((datetime.strptime(p['fechayhora'], formato_fecha),p['resultado']))
 
 		permitido = 1
 		if len(prueba):
 			prueba = max(prueba, key=lambda x: x[0])
 			#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
 			fecha = prueba[0]
-			fechaMin = datetime.today() - timedelta(days=15)
-			if prueba[1]!='Negativo' and fecha >= fechaMin: permitido = 0
+			fecha_Min = datetime.today() - timedelta(days=15)
+			if prueba[1]!='Negativo' and fecha >= fecha_Min: permitido = 0
 
 		tapabocas = 'SI'
 		if 'tapabocas' not in request.form:
@@ -911,7 +909,7 @@ def local_no_QR():
 		if permitido: ingreso = 'SI'
 		else: ingreso = 'NO'
 
-		fechayhora = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
+		fechayhora = datetime.fromtimestamp(time()).strftime(formato_fecha)
 		bd['visita'].insert_one({
 			'tipo_id_persona':tipo_id,
 			'num_id_persona': num_id,
@@ -956,7 +954,7 @@ def local_destiempo():
 		if permitido: ingreso = 'SI'
 		else: ingreso = 'NO'
 
-		fechayhora = datetime.strptime(request.form['fecha']+' '+request.form['hora']+':00', '%Y-%m-%d %H:%M:%S')
+		fechayhora = datetime.strptime(request.form['fecha']+' '+request.form['hora']+':00', formato_fecha)
 		bd['visita'].insert_one({
 			'tipo_id_persona':tipo_id,
 			'num_id_persona': num_id,
@@ -994,7 +992,7 @@ def registro_prueba():
 			flash('pendiente')
 			return redirect(url_for("index"))
 
-		fechayhora = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
+		fechayhora = datetime.fromtimestamp(time()).strftime(formato_fecha)
 		bd['historial_pruebas'].insert_one({
 			'id_historial':request.form['prueba_id1'],
 			'tipo_id_persona': request.form['tipo_id1'],
@@ -1146,14 +1144,14 @@ def gestionar_usuarios():
 		departamentos.add(aux[17])
 		prueba = list()
 		for p in bd['historial_pruebas'].find({'tipo_id_persona':aux[1],'num_id_persona':aux[2]}):  
-			prueba.append((datetime.strptime(p['fechayhora'], '%Y-%m-%d %H:%M:%S'),p['resultado']))
+			prueba.append((datetime.strptime(p['fechayhora'], formato_fecha),p['resultado']))
 
 		if len(prueba):
 			prueba = max(prueba, key=lambda x: x[0])
 			#Si no se ha hecho una prueba de COVID-19 en los ultimos 15 dias, debe estar en cuarentena
 			fecha = prueba[0]
-			fechaMin = datetime.today() - timedelta(days=15)
-			if prueba[1]=='Positivo' and fecha >= fechaMin: aux[18] = 'Si'
+			fecha_Min = datetime.today() - timedelta(days=15)
+			if prueba[1]=='Positivo' and fecha >= fecha_Min: aux[18] = 'Si'
 		
 		usuarios.append(aux)
 			
@@ -1197,7 +1195,6 @@ def gestionar_admins():
 		contrasena = request.form['contrasena']
 
 		N = 0
-		usuarios = list()
 		N += bd['civil'].find({'usuario':usuario}).count()
 		N += bd['administrador'].find({'usuario':usuario}).count()
 		N += bd['comercio'].find({'usuario':usuario}).count()
@@ -1307,8 +1304,8 @@ def gestionar_solicitudes_registro_civil():
 			QR.png('QRs/'+tipo_id+'-'+num_id+'.png',scale=8)
 
 			enviar_correo(correo,
-				"Solicitud de creacion de cuenta",
-				mensaje_aprobacion_civil.format(nombre),
+				string_solicitud_creacion,
+				mensajes.mensaje_aprobacion_civil.format(nombre),
 				'QRs/'+tipo_id+'-'+num_id+'.png'
 			)
 
@@ -1323,8 +1320,8 @@ def gestionar_solicitudes_registro_civil():
 
 		else:
 			enviar_correo(correo,
-				"Solicitud de creacion de cuenta",
-				mensaje_rechazo_civil.format(nombre),
+				string_solicitud_creacion,
+				mensajes.mensaje_rechazo_civil.format(nombre),
 				''
 			)
 
@@ -1359,8 +1356,8 @@ def gestionar_solicitudes_registro_comercio():
 		if 'aceptar' in request.form:
 
 			enviar_correo(correo,
-				"Solicitud de creacion de cuenta",
-				mensaje_aprobacion_comercio.format(nombre),
+				string_solicitud_creacion,
+				mensajes.mensaje_aprobacion_comercio.format(nombre),
 				''
 			)
 			bd['comercio'].update_one({
@@ -1374,8 +1371,8 @@ def gestionar_solicitudes_registro_comercio():
 
 		else:
 			enviar_correo(correo,
-				"Solicitud de creacion de cuenta",
-				mensaje_rechazo_comercio.format(nombre),
+				string_solicitud_creacion,
+				mensajes.mensaje_rechazo_comercio.format(nombre),
 				''
 			)
 
@@ -1413,8 +1410,8 @@ def gestionar_solicitudes_registro_entidad_sanitaria():
 		if 'aceptar' in request.form:
 
 			enviar_correo(correo,
-				"Solicitud de creacion de cuenta",
-				mensaje_aprobacion_entidad_sanitaria.format(nombre),
+				string_solicitud_creacion,
+				mensajes.mensaje_aprobacion_entidad_sanitaria.format(nombre),
 				''
 			)
 
@@ -1429,8 +1426,8 @@ def gestionar_solicitudes_registro_entidad_sanitaria():
 
 		else:
 			enviar_correo(correo,
-				"Solicitud de creacion de cuenta",
-				mensaje_rechazo_entidad_sanitaria.format(nombre),
+				string_solicitud_creacion,
+				mensajes.mensaje_rechazo_entidad_sanitaria.format(nombre),
 				''
 			)
 
@@ -1488,13 +1485,13 @@ def gestionar_solicitudes_modificacion_civil():
 				if len(usuario[13]): bd['civil'].update_one({'tipo_id':tipo_id,'num_id':num_id},{'$set':{'contrasena':usuario[13]}})
 				
 				enviar_correo(correo_1,
-					"Solicitud de modificacion de cuenta",
-					mensaje_aprobacion_mod_civil.format(nombre),
+					string_solicitud_mod,
+					mensajes.mensaje_aprobacion_mod_civil.format(nombre),
 					'')
 				if correo_1 != correo_2:
 					enviar_correo(correo_2,
-						"Solicitud de modificacion de cuenta",
-						mensaje_aprobacion_mod_civil.format(nombre),
+						string_solicitud_mod,
+						mensajes.mensaje_aprobacion_mod_civil.format(nombre),
 						'')
 			else:
 				aux_contrasena = list()
@@ -1520,21 +1517,21 @@ def gestionar_solicitudes_modificacion_civil():
 				})
 
 				enviar_correo(correo_1,
-					"Solicitud de recuperacion de contraseña",
-					mensaje_aprobacion_cambio_contrasena.format(nombre,contrasena_tmp),
+					string_solicitud_recuperacion,
+					mensajes.mensaje_aprobacion_cambio_contrasena.format(nombre,contrasena_tmp),
 					'')
 
 		else:
 
 			if usuario[2] == 0:
 				enviar_correo(correo_1,
-					"Solicitud de modificacion de cuenta",
-					mensaje_rechazo_mod_civil.format(nombre),
+					string_solicitud_mod,
+					mensajes.mensaje_rechazo_mod_civil.format(nombre),
 					'')
 			else:
 				enviar_correo(correo_1,
-					"Solicitud de recuperacion de contraseña",
-					mensaje_rechazo_cambio_contrasena.format(nombre),
+					string_solicitud_recuperacion,
+					mensajes.mensaje_rechazo_cambio_contrasena.format(nombre),
 					'')
 
 		bd['modificacion'].delete_one({'tipo_cuenta':1,'tipo_id':tipo_id,'num_id':num_id})
@@ -1595,13 +1592,13 @@ def gestionar_solicitudes_modificacion_comercio():
 				if len(local[12]): bd['comercio'].update_one({'tipo_id':tipo_id,'num_id':num_id},{'$set':{'contrasena':local[12]}})
 				
 				enviar_correo(correo_1,
-					"Solicitud de modificacion de cuenta",
-					mensaje_aprobacion_mod_comercio.format(nombre),
+					string_solicitud_mod,
+					mensajes.mensaje_aprobacion_mod_comercio.format(nombre),
 					'')
 				if correo_1 != correo_2:
 					enviar_correo(correo_2,
-						"Solicitud de modificacion de cuenta",
-						mensaje_aprobacion_mod_comercio.format(nombre),
+						string_solicitud_mod,
+						mensajes.mensaje_aprobacion_mod_comercio.format(nombre),
 						'')
 			else:
 				aux_contrasena = list()
@@ -1627,20 +1624,20 @@ def gestionar_solicitudes_modificacion_comercio():
 				})
 
 				enviar_correo(correo_1,
-					"Solicitud de recuperacion de contraseña",
-					mensaje_aprobacion_cambio_contrasena.format(nombre,contrasena_tmp),
+					string_solicitud_recuperacion,
+					mensajes.mensaje_aprobacion_cambio_contrasena.format(nombre,contrasena_tmp),
 					'')
 
 		else:
 			if local[2] == 0:
 				enviar_correo(correo_1,
-					"Solicitud de modificacion de cuenta",
-					mensaje_rechazo_mod_comercio.format(nombre),
+					string_solicitud_mod,
+					mensajes.mensaje_rechazo_mod_comercio.format(nombre),
 					'')
 			else:
 				enviar_correo(correo_1,
-					"Solicitud de recuperacion de contraseña",
-					mensaje_rechazo_cambio_contrasena.format(nombre),
+					string_solicitud_recuperacion,
+					mensajes.mensaje_rechazo_cambio_contrasena.format(nombre),
 					'')
 
 		bd['modificacion'].delete_one({'tipo_cuenta':2,'tipo_id':tipo_id,'num_id':num_id})
@@ -1700,13 +1697,13 @@ def gestionar_solicitudes_modificacion_entidad_sanitaria():
 				if len(entidad[9]): bd['entidad_sanitaria'].update_one({'tipo_id':tipo_id,'num_id':num_id},{'$set':{'contrasena':entidad[9]}})
 				
 				enviar_correo(correo_1,
-					"Solicitud de modificacion de cuenta",
-					mensaje_aprobacion_mod_entidad_sanitaria.format(nombre),
+					string_solicitud_mod,
+					mensajes.mensaje_aprobacion_mod_entidad_sanitaria.format(nombre),
 					'')
 				if correo_1 != correo_2:
 					enviar_correo(correo_2,
-						"Solicitud de modificacion de cuenta",
-						mensaje_aprobacion_mod_entidad_sanitaria.format(nombre),
+						string_solicitud_mod,
+						mensajes.mensaje_aprobacion_mod_entidad_sanitaria.format(nombre),
 						'')
 
 			else:
@@ -1733,21 +1730,21 @@ def gestionar_solicitudes_modificacion_entidad_sanitaria():
 				})
 
 				enviar_correo(correo_1,
-					"Solicitud de recuperacion de contraseña",
-					mensaje_aprobacion_cambio_contrasena.format(nombre,contrasena_tmp),
+					string_solicitud_recuperacion,
+					mensajes.mensaje_aprobacion_cambio_contrasena.format(nombre,contrasena_tmp),
 					'')
 		else:
 
 			if entidad[2] == 0:
 				enviar_correo(correo_1,
-					"Solicitud de modificacion de cuenta",
-					mensaje_rechazo_mod_comercio.format(nombre),
+					string_solicitud_mod,
+					mensajes.mensaje_rechazo_mod_comercio.format(nombre),
 					'')
 
 			else:
 				enviar_correo(correo_1,
-					"Solicitud de recuperacion de contraseña",
-					mensaje_rechazo_cambio_contrasena.format(nombre),
+					string_solicitud_recuperacion,
+					mensajes.mensaje_rechazo_cambio_contrasena.format(nombre),
 					'')
 
 		bd['modificacion'].delete_one({'tipo_cuenta':3,'tipo_id':tipo_id,'num_id':num_id})

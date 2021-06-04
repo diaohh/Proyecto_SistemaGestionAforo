@@ -32,14 +32,14 @@ contrasena.onkeyup = function() {
 		letra.innerHTML = "";
 	}
 
-	simbolos = contrasena.value.match(/[-_!=+?¿!¡]/g)
+	var simbolos = contrasena.value.match(/[-_!=+?¿!¡]/g)
 	if(simbolos){
 		caracter.innerHTML = "- <span>&#10003;</span>";
 	}else{
 		caracter.innerHTML = "";
 	}
 
-	largo = contrasena.value.length > 9;
+	var largo = contrasena.value.length > 9;
 	if(largo){
 		longitud.innerHTML = "- <span>&#10003;</span>";
 	}else{
@@ -75,7 +75,7 @@ var departamento = document.getElementById("departamento");
 var municipio = document.getElementById("municipio");
 var mun = document.getElementById("mun_seleccionado").value;
 function actualizarMuns(){
-	dep = departamento.value;
+	var dep = departamento.value;
 	fetch('/muns/'+dep).then(function(aux){
 		aux.json().then(function(muns){
 			muns.municipios.sort();
