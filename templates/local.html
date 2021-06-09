@@ -33,7 +33,7 @@
 				<label><strong>Filtrar fecha de la visita:</strong></label>
 				<input type="date" id="fecha_filtro" name="fecha_filtro" style="width: 200px">
 				<button type="button" id="limpiar_filtro">Limpiar filtro</button>
-				<label id="label_riesgo">El riesgo promedio por dia es: <strong>{{riesgo}}</strong></label>
+				<label id="label_riesgo">{% if riesgo == -1 %}No hay suficientes visitas para calcular el riesgo promedio por dia.{% else %}El riesgo promedio por dia es: <strong>{{riesgo}}{% endif %}</strong></label>
 				<div style="height: 620px ;overflow: auto;">
 					<table id="datos_usuarios" border="1">
 						<caption>Tabla de administradores registrados</caption>

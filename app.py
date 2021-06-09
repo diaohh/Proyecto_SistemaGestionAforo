@@ -147,7 +147,7 @@ def index():
 					acum_riesgo_fechas[aux][0] += vis[6]
 					acum_riesgo_fechas[aux][1] += 1
 
-			riesgo = niveles[ceil(calculo_riesgo_local(acum_riesgo_fechas)/2)-1]
+			riesgo = -1 if len(acum_riesgo_fechas) else niveles[ceil(calculo_riesgo_local(acum_riesgo_fechas)/2)-1]
 
 			return render_template("local.html",visitas=visitas,riesgo=riesgo)
 
